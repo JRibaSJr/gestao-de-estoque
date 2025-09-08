@@ -51,7 +51,9 @@ public class InventoryService {
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
 
+    @Cacheable(value = "inventory", key = "'all'")
     public List<InventoryDTO> getAllInventory() {
+        System.out.println("📦 Cache MISS: Loading all inventory from database");
         return inventoryRepository.findAll().stream()
                 .map(InventoryDTO::fromEntity)
                 .collect(Collectors.toList());
