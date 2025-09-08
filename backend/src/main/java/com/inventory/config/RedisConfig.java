@@ -40,9 +40,9 @@ public class RedisConfig {
         template.setKeySerializer(new StringRedisSerializer());
         template.setHashKeySerializer(new StringRedisSerializer());
         
-        // Use JSON serializer for values
-        template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
-        template.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());
+        // Use JSON serializer for values with custom ObjectMapper
+        template.setValueSerializer(new GenericJackson2JsonRedisSerializer(redisObjectMapper()));
+        template.setHashValueSerializer(new GenericJackson2JsonRedisSerializer(redisObjectMapper()));
         
         template.afterPropertiesSet();
         return template;
