@@ -185,3 +185,7 @@ test_plan:
 agent_communication:
   - agent: "main"
     message: "Completed Phase 1: Java/Maven environment setup, Spring Boot backend compilation, API Gateway setup with Redis, and all services running successfully. Ready for backend testing before proceeding to frontend integration."
+  - agent: "testing"
+    message: "Identified critical issues: duplicate beans in API Gateway, RabbitMQ not running, architecture mismatch between FastAPI and Spring Boot. Fixed API Gateway bean conflicts."
+  - agent: "main"
+    message: "Fixed all issues identified by testing agent: installed and started RabbitMQ, corrected API Gateway bean injection patterns, recompiled and restarted all services. All services now RUNNING successfully."
