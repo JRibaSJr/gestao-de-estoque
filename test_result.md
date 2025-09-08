@@ -151,7 +151,7 @@ backend:
     status_history:
       - working: true
         agent: "main"
-        comment: "RabbitMQ configuration with event-driven architecture implemented"
+        comment: "RabbitMQ server installed and running successfully. Configuration with event-driven architecture implemented"
 
 frontend:
   - task: "React Frontend Update"
