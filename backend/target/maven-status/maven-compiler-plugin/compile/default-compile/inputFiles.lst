@@ -38,5 +38,6 @@
 /app/backend/src/main/java/com/inventory/controller/InventoryController.java
 /app/backend/src/main/java/com/inventory/dto/InventoryDTO.java
 /app/backend/src/main/java/com/inventory/repository/InventoryRepository.java
+/app/backend/src/main/java/com/inventory/config/JacksonConfig.java
 /app/backend/src/main/java/com/inventory/controller/WebSocketController.java
 /app/backend/src/main/java/com/inventory/config/WebSocketConfig.java
