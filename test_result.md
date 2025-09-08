@@ -107,15 +107,18 @@ user_problem_statement: "Build a Distributed Inventory Management System with st
 backend:
   - task: "Spring Boot Backend Setup"
     implemented: true
-    working: true
+    working: false
     file: "/app/backend/src/main/java/com/inventory/"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Spring Boot backend with SQLite, JPA, and RabbitMQ integration compiled and running successfully"
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL: Spring Boot JAR compiled but NOT running. Supervisor configured to run FastAPI (uvicorn) instead. Architecture mismatch between expected Spring Boot and actual FastAPI implementation."
 
   - task: "API Gateway Setup"
     implemented: true
