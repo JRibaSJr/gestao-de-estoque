@@ -232,7 +232,9 @@ public class InventoryService {
             }
             
         } catch (Exception e) {
-            throw new RuntimeException("Failed to process stock in", e);
+            System.err.println("🔥 Stock In Exception: " + e.getClass().getSimpleName() + " - " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Failed to process stock in: " + e.getMessage(), e);
         }
     }
 
