@@ -320,9 +320,9 @@ public class InventoryService {
     // Synchronous methods for direct database access (used by consumers)
     @Transactional(timeout = 10) // Short timeout to prevent long locks
     public InventoryDTO updateInventoryDirect(InventoryUpdateRequest request) {
-        // Find or create inventory record with pessimistic locking
+        // Find or create inventory record (removed pessimistic locking for SQLite)
         Inventory inventory = inventoryRepository
-                .findByStoreIdAndProductIdForUpdate(request.getStoreId(), request.getProductId())
+                .findByStoreIdAndProductId(request.getStoreId(), request.getProductId())
                 .orElseGet(() -> {
                     var store = storeRepository.findById(request.getStoreId())
                             .orElseThrow(() -> new RuntimeException("Store not found"));
