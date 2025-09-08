@@ -1,0 +1,7 @@
+/app/api-gateway/src/main/java/com/inventory/gateway/filter/RequestLoggingFilter.java
+/app/api-gateway/src/main/java/com/inventory/gateway/controller/FallbackController.java
+/app/api-gateway/src/main/java/com/inventory/gateway/filter/AuthenticationFilter.java
+/app/api-gateway/src/main/java/com/inventory/gateway/config/SecurityConfig.java
+/app/api-gateway/src/main/java/com/inventory/gateway/ApiGatewayApplication.java
+/app/api-gateway/src/main/java/com/inventory/gateway/controller/GatewayInfoController.java
+/app/api-gateway/src/main/java/com/inventory/gateway/config/GatewayConfig.java
