@@ -1,6 +1,6 @@
 package com.inventory.consumer;
 
-import com.inventory.config.RabbitMQConfig;
+// RabbitMQConfig removed after Kafka migration
 import com.inventory.event.InventoryTransferEvent;
 import com.inventory.saga.InventoryTransferSaga;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
