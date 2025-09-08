@@ -3,15 +3,20 @@ package com.inventory.config;
 import com.inventory.model.Store;
 import com.inventory.model.Product;
 import com.inventory.model.Inventory;
+import com.inventory.model.Transaction;
 import com.inventory.repository.StoreRepository;
 import com.inventory.repository.ProductRepository;
 import com.inventory.repository.InventoryRepository;
+import com.inventory.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
