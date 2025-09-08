@@ -100,24 +100,5 @@ public class ApiGatewayApplication {
 			.build();
 	}
 	
-	@Bean
-	public RedisRateLimiter redisRateLimiter() {
-		// 100 requests per second with burst of 200
-		return new RedisRateLimiter(100, 200, 1);
-	}
-	
-	@Bean
-	public KeyResolver userKeyResolver() {
-		return exchange -> {
-			// Extract user ID from JWT token or use IP address as fallback
-			String userId = exchange.getRequest().getHeaders().getFirst("X-User-ID");
-			if (userId != null) {
-				return Mono.just(userId);
-			}
-			
-			// Fallback to IP address
-			String clientIP = exchange.getRequest().getRemoteAddress().getAddress().getHostAddress();
-			return Mono.just(clientIP);
-		};
-	}
+	// Removed duplicate beans - using ones from GatewayConfig
 }
