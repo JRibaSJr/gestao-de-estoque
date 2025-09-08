@@ -35,6 +35,7 @@ com/inventory/service/TransactionService.class
 com/inventory/model/Transaction.class
 com/inventory/event/InventoryUpdateEvent.class
 com/inventory/event/InventoryTransferEvent.class
+com/inventory/controller/RabbitMQTestController.class
 com/inventory/model/SyncEvent$EventType.class
 com/inventory/config/CorsConfig$1.class
 com/inventory/dto/ProductDTO.class

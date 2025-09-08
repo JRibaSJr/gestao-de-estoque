@@ -18,6 +18,7 @@
 /app/backend/src/main/java/com/inventory/consumer/InventoryTransferConsumer.java
 /app/backend/src/main/java/com/inventory/model/Product.java
 /app/backend/src/main/java/com/inventory/repository/SyncEventRepository.java
+/app/backend/src/main/java/com/inventory/controller/RabbitMQTestController.java
 /app/backend/src/main/java/com/inventory/controller/StoreController.java
 /app/backend/src/main/java/com/inventory/event/InventoryAuditEvent.java
 /app/backend/src/main/java/com/inventory/service/StoreService.java
