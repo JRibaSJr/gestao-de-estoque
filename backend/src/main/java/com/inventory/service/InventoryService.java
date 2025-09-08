@@ -293,7 +293,9 @@ public class InventoryService {
             }
             
         } catch (Exception e) {
-            throw new RuntimeException("Failed to process stock out", e);
+            System.err.println("🔥 Stock Out Exception: " + e.getClass().getSimpleName() + " - " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Failed to process stock out: " + e.getMessage(), e);
         }
     }
 
