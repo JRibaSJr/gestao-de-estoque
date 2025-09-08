@@ -26,8 +26,8 @@ public class ApiGatewayApplication {
 						.setName("inventory-service")
 						.setFallbackUri("forward:/fallback/inventory"))
 					.requestRateLimiter(config -> config
-						.setRateLimiter(redisRateLimiter())
-						.setKeyResolver(userKeyResolver()))
+						.setRateLimiter(redisRateLimiter)
+						.setKeyResolver(userKeyResolver))
 					.addRequestHeader("X-Gateway-Source", "api-gateway")
 					.addResponseHeader("X-Gateway-Response-Time", String.valueOf(System.currentTimeMillis())))
 				.uri("http://localhost:8001"))
