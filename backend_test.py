@@ -651,6 +651,15 @@ class BackendTester:
         self.test_spring_boot_endpoints()
         self.test_inventory_operations()
         
+        # NEW: Stock In/Stock Out functionality tests
+        print("\n📦 Testing Stock In/Stock Out Functionality")
+        print("-" * 50)
+        self.test_stock_in_operations()
+        self.test_stock_out_operations()
+        self.test_transaction_tracking()
+        self.test_event_driven_integration()
+        self.test_inventory_consistency()
+        
         # Infrastructure tests
         self.test_api_gateway_routing()
         self.test_database_connectivity()
