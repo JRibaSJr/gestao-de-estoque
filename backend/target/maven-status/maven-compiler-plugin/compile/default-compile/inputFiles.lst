@@ -5,6 +5,7 @@
 /app/backend/src/main/java/com/inventory/model/SyncEvent.java
 /app/backend/src/main/java/com/inventory/dto/ProductDTO.java
 /app/backend/src/main/java/com/inventory/event/InventoryTransferEvent.java
+/app/backend/src/main/java/com/inventory/service/TransferStateService.java
 /app/backend/src/main/java/com/inventory/service/InventoryService.java
 /app/backend/src/main/java/com/inventory/controller/SyncController.java
 /app/backend/src/main/java/com/inventory/config/DataInitializer.java
@@ -26,6 +27,7 @@
 /app/backend/src/main/java/com/inventory/service/TransactionService.java
 /app/backend/src/main/java/com/inventory/consumer/InventoryUpdateConsumer.java
 /app/backend/src/main/java/com/inventory/publisher/InventoryEventPublisher.java
+/app/backend/src/main/java/com/inventory/config/RedisConfig.java
 /app/backend/src/main/java/com/inventory/controller/TransactionController.java
 /app/backend/src/main/java/com/inventory/consumer/InventoryAuditConsumer.java
 /app/backend/src/main/java/com/inventory/model/Transaction.java
