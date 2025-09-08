@@ -1,4 +1,4 @@
-package com.inventory.config;
+// package com.inventory.config; // Deprecated after Kafka migration
 
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
