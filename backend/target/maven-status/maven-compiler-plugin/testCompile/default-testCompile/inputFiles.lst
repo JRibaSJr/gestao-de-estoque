@@ -1,0 +1,4 @@
+/app/backend/src/test/java/com/inventory/service/InventoryServiceTest.java
+/app/backend/src/test/java/com/inventory/load/InventoryLoadTest.java
+/app/backend/src/test/java/com/inventory/integration/MessagingIntegrationTest.java
+/app/backend/src/test/java/com/inventory/integration/InventoryIntegrationTest.java

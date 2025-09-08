@@ -1,0 +1,38 @@
+spring:
+  datasource:
+    url: jdbc:sqlite:test-inventory.db
+    driver-class-name: org.sqlite.JDBC
+    hikari:
+      maximum-pool-size: 3
+      minimum-idle: 1
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest  
+    password: guest
+    
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  cache:
+    type: redis
+    redis:
+      time-to-live: 30000
+
+logging:
+  level:
+    com.inventory: INFO
+    org.springframework.amqp: WARN
+    org.hibernate.SQL: WARN
+    org.springframework.cache: INFO
