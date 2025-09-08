@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 // @RestController
-@RequestMapping("/api/test")
+// @RequestMapping("/api/test")
 public class RabbitMQTestController {
 
     @Autowired
