@@ -5,6 +5,8 @@ import com.inventory.model.Product;
 import com.inventory.repository.ProductRepository;
 import com.inventory.repository.InventoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
