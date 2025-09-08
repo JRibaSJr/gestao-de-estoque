@@ -234,10 +234,11 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Complete System Integration"
-  stuck_tasks: []
+    - "Stock In/Stock Out Functionality"
+  stuck_tasks:
+    - "Stock In/Stock Out Functionality"
   test_all: false
-  test_priority: "high_first"
+  test_priority: "stuck_first"
 
 agent_communication:
   - agent: "main"
