@@ -267,6 +267,8 @@ test_plan:
     - "SQLite Database Concurrency Issue"
   stuck_tasks:
     - "SQLite Database Concurrency Issue"
+  - agent: "main"
+    message: "Migrated messaging from RabbitMQ to Kafka (Redpanda local). Added KafkaConfig, updated consumers to @KafkaListener, replaced RabbitMQ dependencies with spring-kafka, and adjusted publisher. Switched dev DB to H2 in-memory with seeding at startup. Created supervisor config for Redpanda process."
   test_all: false
   test_priority: "high_first"
 
