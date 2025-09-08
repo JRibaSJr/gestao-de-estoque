@@ -14,6 +14,7 @@ com/inventory/controller/ProductController.class
 com/inventory/dto/TransactionDTO.class
 com/inventory/controller/InventoryController.class
 com/inventory/controller/SyncController.class
+com/inventory/config/SqliteRetryConfig.class
 com/inventory/model/SyncEvent.class
 com/inventory/event/InventorySyncEvent.class
 com/inventory/config/RabbitMQConfig.class
@@ -27,6 +28,7 @@ com/inventory/service/ProductService.class
 com/inventory/controller/StoreController.class
 com/inventory/event/InventoryEvent.class
 com/inventory/event/InventoryAuditEvent.class
+com/inventory/config/SqliteRetryConfig$1.class
 com/inventory/config/DataInitializer.class
 com/inventory/dto/InventoryDTO.class
 com/inventory/consumer/InventoryAuditConsumer.class
