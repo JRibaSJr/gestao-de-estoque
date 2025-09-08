@@ -198,15 +198,38 @@ public class InventoryService {
                 throw new RuntimeException("Product not found: " + productId);
             }
 
-            // Create stock in event
-            InventoryUpdateEvent event = new InventoryUpdateEvent(storeId, productId, quantity, "STOCK_IN");
-            event.setNotes(notes != null ? notes : "Stock entry - product received");
-            event.setReferenceId(referenceId);
-            event.setCorrelationId(UUID.randomUUID().toString());
+            // Try to publish event, but continue with direct update if it fails
+            String eventId = UUID.randomUUID().toString();
+            try {
+                InventoryUpdateEvent event = new InventoryUpdateEvent(storeId, productId, quantity, "STOCK_IN");
+                event.setNotes(notes != null ? notes : "Stock entry - product received");
+                event.setReferenceId(referenceId);
+                event.setCorrelationId(eventId);
 
-            eventPublisher.publishInventoryUpdate(event);
-            
-            return "Stock in event published: " + event.getEventId() + " - Added " + quantity + " units";
+                eventPublisher.publishInventoryUpdate(event);
+                return "Stock in event published: " + event.getEventId() + " - Added " + quantity + " units";
+                
+            } catch (Exception eventError) {
+                System.err.println("⚠️ Event publishing failed, processing directly: " + eventError.getMessage());
+                
+                // Process directly if event publishing fails
+                InventoryUpdateRequest directRequest = new InventoryUpdateRequest();
+                directRequest.setStoreId(storeId);
+                directRequest.setProductId(productId);
+                directRequest.setQuantityAdjustment(quantity);
+                directRequest.setNotes(notes);
+                directRequest.setReferenceId(referenceId);
+                
+                InventoryDTO result = updateInventoryDirect(directRequest);
+                
+                // Create transaction record manually
+                Store store = storeRepository.findById(storeId).orElseThrow();
+                Product product = productRepository.findById(productId).orElseThrow();
+                Transaction transaction = new Transaction(store, product, Transaction.TransactionType.STOCK_IN, quantity, referenceId, notes);
+                transactionRepository.save(transaction);
+                
+                return "Stock in processed directly (event system unavailable): " + eventId + " - Added " + quantity + " units";
+            }
             
         } catch (Exception e) {
             throw new RuntimeException("Failed to process stock in", e);
