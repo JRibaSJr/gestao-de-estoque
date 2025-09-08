@@ -3,8 +3,9 @@ package com.inventory.consumer;
 // RabbitMQConfig removed after Kafka migration
 import com.inventory.event.InventoryTransferEvent;
 import com.inventory.saga.InventoryTransferSaga;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.amqp.support.AmqpHeaders;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
