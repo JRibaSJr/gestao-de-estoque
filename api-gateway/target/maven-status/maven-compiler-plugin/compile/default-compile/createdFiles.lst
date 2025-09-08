@@ -1,3 +1,9 @@
-com/inventory/gateway/config/SecurityConfig.class
 com/inventory/gateway/filter/RequestLoggingFilter.class
+com/inventory/gateway/controller/GatewayInfoController.class
+com/inventory/gateway/config/GatewayConfig.class
+com/inventory/gateway/ApiGatewayApplication.class
+com/inventory/gateway/filter/AuthenticationFilter$Config.class
+com/inventory/gateway/config/SecurityConfig.class
+com/inventory/gateway/controller/FallbackController.class
+com/inventory/gateway/filter/AuthenticationFilter.class
 com/inventory/gateway/filter/RequestLoggingFilter$Config.class
