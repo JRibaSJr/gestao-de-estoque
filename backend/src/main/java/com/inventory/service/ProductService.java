@@ -5,6 +5,8 @@ import com.inventory.model.Product;
 import com.inventory.repository.ProductRepository;
 import com.inventory.repository.InventoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,22 +24,29 @@ public class ProductService {
     @Autowired
     private InventoryRepository inventoryRepository;
 
+    @Cacheable(value = "products", key = "'all'")
     public List<ProductDTO> getAllProducts() {
+        System.out.println("🛍️ Cache MISS: Loading all products from database");
         return productRepository.findAll().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
+    @Cacheable(value = "products", key = "'id:' + #id")
     public Optional<ProductDTO> getProductById(Long id) {
+        System.out.println("🛍️ Cache MISS: Loading product " + id + " from database");
         return productRepository.findById(id)
                 .map(this::convertToDTO);
     }
 
+    @Cacheable(value = "products", key = "'sku:' + #sku")
     public Optional<ProductDTO> getProductBySku(String sku) {
+        System.out.println("🛍️ Cache MISS: Loading product with SKU " + sku + " from database");
         return productRepository.findBySku(sku)
                 .map(this::convertToDTO);
     }
 
+    @CacheEvict(value = "products", allEntries = true)
     public ProductDTO createProduct(ProductDTO productDTO) {
         // Check if SKU already exists
         if (productRepository.findBySku(productDTO.getSku()).isPresent()) {
@@ -49,6 +58,7 @@ public class ProductService {
         return convertToDTO(product);
     }
 
+    @CacheEvict(value = "products", allEntries = true)
     public Optional<ProductDTO> updateProduct(Long id, ProductDTO productDTO) {
         return productRepository.findById(id)
                 .map(product -> {
@@ -70,6 +80,7 @@ public class ProductService {
                 });
     }
 
+    @CacheEvict(value = "products", allEntries = true)
     public boolean deleteProduct(Long id) {
         if (productRepository.existsById(id)) {
             // Check if product has inventory records
@@ -96,7 +107,9 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
+    @Cacheable(value = "products", key = "'categories'")
     public List<String> getAllCategories() {
+        System.out.println("🏷️ Cache MISS: Loading product categories from database");
         return productRepository.findAllCategories();
     }
 

@@ -60,21 +60,21 @@ public class InventoryController {
     }
 
     @PostMapping("/update")
-    @Operation(summary = "Update inventory", description = "Update inventory quantity with transaction tracking")
-    public ResponseEntity<InventoryDTO> updateInventory(
+    @Operation(summary = "Update inventory", description = "Update inventory quantity with event-driven processing")
+    public ResponseEntity<Map<String, String>> updateInventory(
             @Parameter(description = "Inventory update request", required = true)
             @Valid @RequestBody InventoryUpdateRequest request) {
         try {
-            InventoryDTO updatedInventory = inventoryService.updateInventory(request);
-            return ResponseEntity.ok(updatedInventory);
+            String result = inventoryService.updateInventory(request);
+            return ResponseEntity.ok(Map.of("message", result));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
     @PostMapping("/transfer")
-    @Operation(summary = "Transfer inventory", description = "Transfer inventory between stores with transaction tracking")
-    public ResponseEntity<InventoryDTO> transferInventory(
+    @Operation(summary = "Transfer inventory", description = "Transfer inventory between stores using saga pattern")
+    public ResponseEntity<Map<String, String>> transferInventory(
             @Parameter(description = "Transfer request parameters", required = true)
             @RequestBody Map<String, Object> transferRequest) {
         try {
@@ -84,10 +84,10 @@ public class InventoryController {
             Integer quantity = Integer.valueOf(transferRequest.get("quantity").toString());
             String notes = transferRequest.get("notes") != null ? transferRequest.get("notes").toString() : "";
             
-            InventoryDTO result = inventoryService.transferInventory(fromStoreId, toStoreId, productId, quantity, notes);
-            return ResponseEntity.ok(result);
+            String result = inventoryService.transferInventory(fromStoreId, toStoreId, productId, quantity, notes);
+            return ResponseEntity.ok(Map.of("message", result));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
@@ -101,8 +101,8 @@ public class InventoryController {
     }
 
     @PostMapping("/reserve")
-    @Operation(summary = "Reserve inventory", description = "Reserve inventory quantity for a specific transaction")
-    public ResponseEntity<InventoryDTO> reserveInventory(
+    @Operation(summary = "Reserve inventory", description = "Reserve inventory quantity using event-driven processing")
+    public ResponseEntity<Map<String, String>> reserveInventory(
             @Parameter(description = "Reservation request", required = true)
             @RequestBody Map<String, Object> reservationRequest) {
         try {
@@ -110,16 +110,16 @@ public class InventoryController {
             Long productId = Long.valueOf(reservationRequest.get("productId").toString());
             Integer quantity = Integer.valueOf(reservationRequest.get("quantity").toString());
             
-            InventoryDTO result = inventoryService.reserveInventory(storeId, productId, quantity);
-            return ResponseEntity.ok(result);
+            String result = inventoryService.reserveInventory(storeId, productId, quantity);
+            return ResponseEntity.ok(Map.of("message", result));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
     @PostMapping("/release-reservation")
-    @Operation(summary = "Release reservation", description = "Release previously reserved inventory quantity")
-    public ResponseEntity<InventoryDTO> releaseReservation(
+    @Operation(summary = "Release reservation", description = "Release previously reserved inventory using event-driven processing")
+    public ResponseEntity<Map<String, String>> releaseReservation(
             @Parameter(description = "Release request", required = true)
             @RequestBody Map<String, Object> releaseRequest) {
         try {
@@ -127,10 +127,52 @@ public class InventoryController {
             Long productId = Long.valueOf(releaseRequest.get("productId").toString());
             Integer quantity = Integer.valueOf(releaseRequest.get("quantity").toString());
             
-            InventoryDTO result = inventoryService.releaseReservation(storeId, productId, quantity);
-            return ResponseEntity.ok(result);
+            String result = inventoryService.releaseReservation(storeId, productId, quantity);
+            return ResponseEntity.ok(Map.of("message", result));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/stock-in")
+    @Operation(summary = "Stock In - Product Entry", description = "Record product entry/receipt into store inventory via event-driven processing")
+    public ResponseEntity<Map<String, String>> stockIn(
+            @Parameter(description = "Stock in request", required = true)
+            @RequestBody Map<String, Object> stockInRequest) {
+        try {
+            Long storeId = Long.valueOf(stockInRequest.get("storeId").toString());
+            Long productId = Long.valueOf(stockInRequest.get("productId").toString());
+            Integer quantity = Integer.valueOf(stockInRequest.get("quantity").toString());
+            String referenceId = stockInRequest.get("referenceId") != null ? 
+                stockInRequest.get("referenceId").toString() : null;
+            String notes = stockInRequest.get("notes") != null ? 
+                stockInRequest.get("notes").toString() : "Stock entry";
+            
+            String result = inventoryService.stockIn(storeId, productId, quantity, referenceId, notes);
+            return ResponseEntity.ok(Map.of("message", result));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/stock-out")
+    @Operation(summary = "Stock Out - Product Exit", description = "Record product exit/sale from store inventory via event-driven processing")
+    public ResponseEntity<Map<String, String>> stockOut(
+            @Parameter(description = "Stock out request", required = true)
+            @RequestBody Map<String, Object> stockOutRequest) {
+        try {
+            Long storeId = Long.valueOf(stockOutRequest.get("storeId").toString());
+            Long productId = Long.valueOf(stockOutRequest.get("productId").toString());
+            Integer quantity = Integer.valueOf(stockOutRequest.get("quantity").toString());
+            String referenceId = stockOutRequest.get("referenceId") != null ? 
+                stockOutRequest.get("referenceId").toString() : null;
+            String notes = stockOutRequest.get("notes") != null ? 
+                stockOutRequest.get("notes").toString() : "Stock exit/sale";
+            
+            String result = inventoryService.stockOut(storeId, productId, quantity, referenceId, notes);
+            return ResponseEntity.ok(Map.of("message", result));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 }

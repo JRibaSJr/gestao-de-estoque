@@ -20,7 +20,54 @@ spring:
         id:
           new_generator_mappings: false
     generate-ddl: true
+    
+  # RabbitMQ Configuration
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    listener:
+      simple:
+        retry:
+          enabled: true
+          initial-interval: 2s
+          max-attempts: 3
+          max-interval: 10s
+          multiplier: 2
+        default-requeue-rejected: false
+        acknowledge-mode: manual
         
+  # SQLite Optimizations for Concurrency
+  datasource:
+    url: jdbc:sqlite:inventory.db?journal_mode=WAL&busy_timeout=5000&synchronous=NORMAL&cache_size=10000
+    driver-class-name: org.sqlite.JDBC
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 2
+      connection-timeout: 10000
+      idle-timeout: 300000
+      max-lifetime: 600000
+
+  # Redis Configuration
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 20
+          max-idle: 10
+          min-idle: 5
+  
+  # Cache Configuration
+  cache:
+    type: redis
+    redis:
+      time-to-live: 600000  # 10 minutes default
+      cache-null-values: false
+
   web:
     cors:
       allowed-origins: "*"

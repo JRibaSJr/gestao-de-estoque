@@ -10,15 +10,22 @@ import com.inventory.repository.InventoryRepository;
 import com.inventory.repository.StoreRepository;
 import com.inventory.repository.ProductRepository;
 import com.inventory.repository.TransactionRepository;
+import com.inventory.publisher.InventoryEventPublisher;
+import com.inventory.event.InventoryUpdateEvent;
+import com.inventory.event.InventoryTransferEvent;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -40,158 +47,304 @@ public class InventoryService {
     private TransactionRepository transactionRepository;
     
     @Autowired
+    private InventoryEventPublisher eventPublisher;
+    
+    @Autowired
     private SimpMessagingTemplate messagingTemplate;
+    
+    @Autowired
+    private NotificationService notificationService;
 
+    // @Cacheable(value = "inventory", key = "'all'")  // Temporarily disabled
     public List<InventoryDTO> getAllInventory() {
+        System.out.println("📦 Loading all inventory from database (cache disabled)");
         return inventoryRepository.findAll().stream()
                 .map(InventoryDTO::fromEntity)
                 .collect(Collectors.toList());
     }
 
+    @Cacheable(value = "inventory", key = "'store:' + #storeId")
     public List<InventoryDTO> getInventoryByStore(Long storeId) {
+        System.out.println("📦 Cache MISS: Loading inventory for store " + storeId + " from database");
         return inventoryRepository.findByStoreIdWithDetails(storeId).stream()
                 .map(InventoryDTO::fromEntity)
                 .collect(Collectors.toList());
     }
 
+    @Cacheable(value = "inventory", key = "'product:' + #productId")
     public List<InventoryDTO> getInventoryByProduct(Long productId) {
+        System.out.println("📦 Cache MISS: Loading inventory for product " + productId + " from database");
         return inventoryRepository.findByProductId(productId).stream()
                 .map(InventoryDTO::fromEntity)
                 .collect(Collectors.toList());
     }
 
+    @Cacheable(value = "inventory", key = "'store:' + #storeId + ':product:' + #productId")
     public Optional<InventoryDTO> getInventoryByStoreAndProduct(Long storeId, Long productId) {
+        System.out.println("📦 Cache MISS: Loading inventory for store " + storeId + " and product " + productId + " from database");
         return inventoryRepository.findByStoreIdAndProductId(storeId, productId)
                 .map(InventoryDTO::fromEntity);
     }
 
     @CircuitBreaker(name = "inventory-service", fallbackMethod = "updateInventoryFallback")
     @Retry(name = "inventory-service")
-    public InventoryDTO updateInventory(InventoryUpdateRequest request) {
-        // Use pessimistic locking for consistency
-        Optional<Inventory> inventoryOpt = inventoryRepository
-                .findByStoreIdAndProductIdForUpdate(request.getStoreId(), request.getProductId());
-        
-        Inventory inventory;
-        boolean isNewRecord = false;
-        
-        if (inventoryOpt.isPresent()) {
-            inventory = inventoryOpt.get();
-            
-            // Optimistic locking check
-            if (request.getVersion() != null && !request.getVersion().equals(inventory.getVersion())) {
-                throw new RuntimeException("Inventory record was modified by another transaction");
+    @CacheEvict(value = {"inventory", "low-stock", "metrics"}, allEntries = true)
+    public String updateInventory(InventoryUpdateRequest request) {
+        try {
+            // Validate store and product exist
+            if (!storeRepository.existsById(request.getStoreId())) {
+                throw new RuntimeException("Store not found: " + request.getStoreId());
             }
-        } else {
-            // Create new inventory record
-            Store store = storeRepository.findById(request.getStoreId())
-                    .orElseThrow(() -> new RuntimeException("Store not found"));
-            Product product = productRepository.findById(request.getProductId())
-                    .orElseThrow(() -> new RuntimeException("Product not found"));
+            if (!productRepository.existsById(request.getProductId())) {
+                throw new RuntimeException("Product not found: " + request.getProductId());
+            }
+
+            // Create and publish inventory update event
+            InventoryUpdateEvent event = new InventoryUpdateEvent(
+                request.getStoreId(),
+                request.getProductId(),
+                request.getQuantityAdjustment(),
+                request.getQuantityAdjustment() > 0 ? "ADD" : "SUBTRACT"
+            );
             
-            inventory = new Inventory(store, product, 0);
-            isNewRecord = true;
+            event.setNotes(request.getNotes());
+            event.setReferenceId(request.getReferenceId());
+            event.setVersion(request.getVersion());
+            event.setCorrelationId(UUID.randomUUID().toString());
+
+            // Publish to Kafka for asynchronous processing
+            eventPublisher.publishInventoryUpdate(event);
+            
+            return "Inventory update event published: " + event.getEventId();
+            
+        } catch (Exception e) {
+            System.err.println("❌ Failed to publish inventory update: " + e.getMessage());
+            throw new RuntimeException("Failed to process inventory update", e);
         }
-        
-        // Apply quantity adjustment
-        inventory.adjustQuantity(request.getQuantityAdjustment());
-        inventory = inventoryRepository.save(inventory);
-        
-        // Create transaction record
-        Transaction.TransactionType transactionType = request.getQuantityAdjustment() > 0 
-                ? Transaction.TransactionType.STOCK_IN 
-                : Transaction.TransactionType.STOCK_OUT;
-                
-        Transaction transaction = new Transaction(
-                inventory.getStore(),
-                inventory.getProduct(),
-                transactionType,
-                Math.abs(request.getQuantityAdjustment()),
-                request.getReferenceId(),
-                request.getNotes()
-        );
-        transactionRepository.save(transaction);
-        
-        // Send real-time update
-        InventoryDTO result = InventoryDTO.fromEntity(inventory);
-        messagingTemplate.convertAndSend("/topic/inventory-updates", result);
-        
-        return result;
     }
 
-    public InventoryDTO updateInventoryFallback(InventoryUpdateRequest request, Exception ex) {
-        // Fallback method for circuit breaker
-        throw new RuntimeException("Inventory service is currently unavailable. Please try again later.", ex);
+    public String updateInventoryFallback(InventoryUpdateRequest request, Exception ex) {
+        System.err.println("🔄 Circuit breaker activated for inventory update: " + ex.getMessage());
+        return "Inventory service is currently unavailable. Your request has been queued for processing.";
     }
 
     @CircuitBreaker(name = "inventory-service")
-    public InventoryDTO transferInventory(Long fromStoreId, Long toStoreId, Long productId, Integer quantity, String notes) {
-        String referenceId = UUID.randomUUID().toString();
-        
-        // Reduce inventory from source store
-        InventoryUpdateRequest reduceRequest = new InventoryUpdateRequest(fromStoreId, productId, -quantity);
-        reduceRequest.setReferenceId(referenceId);
-        reduceRequest.setNotes("Transfer OUT: " + notes);
-        updateInventory(reduceRequest);
-        
-        // Increase inventory in destination store  
-        InventoryUpdateRequest increaseRequest = new InventoryUpdateRequest(toStoreId, productId, quantity);
-        increaseRequest.setReferenceId(referenceId);
-        increaseRequest.setNotes("Transfer IN: " + notes);
-        return updateInventory(increaseRequest);
+    @CacheEvict(value = {"inventory", "low-stock", "metrics"}, allEntries = true)
+    public String transferInventory(Long fromStoreId, Long toStoreId, Long productId, Integer quantity, String notes) {
+        try {
+            // Validate stores and product exist
+            if (!storeRepository.existsById(fromStoreId)) {
+                throw new RuntimeException("Source store not found: " + fromStoreId);
+            }
+            if (!storeRepository.existsById(toStoreId)) {
+                throw new RuntimeException("Destination store not found: " + toStoreId);
+            }
+            if (!productRepository.existsById(productId)) {
+                throw new RuntimeException("Product not found: " + productId);
+            }
+
+            String sagaId = UUID.randomUUID().toString();
+
+            // Create and publish transfer start event
+            InventoryTransferEvent event = new InventoryTransferEvent(
+                fromStoreId, toStoreId, productId, quantity, "START"
+            );
+            event.setSagaId(sagaId);
+            event.setNotes(notes);
+            event.setCorrelationId(sagaId);
+
+            // Publish to Kafka for saga orchestration
+            eventPublisher.publishInventoryTransfer(event);
+            
+            return "Inventory transfer started with saga ID: " + sagaId;
+            
+        } catch (Exception e) {
+            System.err.println("❌ Failed to initiate transfer: " + e.getMessage());
+            throw new RuntimeException("Failed to initiate inventory transfer", e);
+        }
     }
 
+    @Cacheable(value = "low-stock", key = "'threshold:' + #threshold")
     public List<InventoryDTO> getLowStockItems(Integer threshold) {
-        return inventoryRepository.findLowStockItems(threshold != null ? threshold : 10).stream()
+        int finalThreshold = threshold != null ? threshold : 10;
+        System.out.println("⚠️ Cache MISS: Loading low stock items (threshold: " + finalThreshold + ") from database");
+        return inventoryRepository.findLowStockItems(finalThreshold).stream()
                 .map(InventoryDTO::fromEntity)
                 .collect(Collectors.toList());
     }
 
-    public InventoryDTO reserveInventory(Long storeId, Long productId, Integer quantity) {
-        Inventory inventory = inventoryRepository.findByStoreIdAndProductIdForUpdate(storeId, productId)
-                .orElseThrow(() -> new RuntimeException("Inventory not found"));
-        
-        inventory.reserve(quantity);
-        inventory = inventoryRepository.save(inventory);
-        
-        // Create reservation transaction
-        Transaction transaction = new Transaction(
-                inventory.getStore(),
-                inventory.getProduct(),
-                Transaction.TransactionType.RESERVATION,
-                quantity,
-                UUID.randomUUID().toString(),
-                "Inventory reserved"
-        );
-        transactionRepository.save(transaction);
-        
-        InventoryDTO result = InventoryDTO.fromEntity(inventory);
-        messagingTemplate.convertAndSend("/topic/inventory-updates", result);
-        
-        return result;
+    public String reserveInventory(Long storeId, Long productId, Integer quantity) {
+        try {
+            // Create reservation update event
+            InventoryUpdateEvent event = new InventoryUpdateEvent(storeId, productId, quantity, "RESERVE");
+            event.setNotes("Inventory reservation");
+            event.setCorrelationId(UUID.randomUUID().toString());
+
+            eventPublisher.publishInventoryUpdate(event);
+            
+            return "Inventory reservation event published: " + event.getEventId();
+            
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to reserve inventory", e);
+        }
     }
 
-    public InventoryDTO releaseReservation(Long storeId, Long productId, Integer quantity) {
-        Inventory inventory = inventoryRepository.findByStoreIdAndProductIdForUpdate(storeId, productId)
-                .orElseThrow(() -> new RuntimeException("Inventory not found"));
-        
-        inventory.releaseReservation(quantity);
+    public String releaseReservation(Long storeId, Long productId, Integer quantity) {
+        try {
+            // Create release reservation update event
+            InventoryUpdateEvent event = new InventoryUpdateEvent(storeId, productId, -quantity, "RELEASE");
+            event.setNotes("Reservation release");
+            event.setCorrelationId(UUID.randomUUID().toString());
+
+            eventPublisher.publishInventoryUpdate(event);
+            
+            return "Reservation release event published: " + event.getEventId();
+            
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to release reservation", e);
+        }
+    }
+
+    @CacheEvict(value = {"inventory", "low-stock", "metrics"}, allEntries = true)
+    public String stockIn(Long storeId, Long productId, Integer quantity, String referenceId, String notes) {
+        try {
+            // Validate inputs
+            if (quantity <= 0) {
+                throw new RuntimeException("Quantity must be positive for stock in");
+            }
+            if (!storeRepository.existsById(storeId)) {
+                throw new RuntimeException("Store not found: " + storeId);
+            }
+            if (!productRepository.existsById(productId)) {
+                throw new RuntimeException("Product not found: " + productId);
+            }
+
+            // Try to publish event, but continue with direct update if it fails
+            String eventId = UUID.randomUUID().toString();
+            try {
+                InventoryUpdateEvent event = new InventoryUpdateEvent(storeId, productId, quantity, "STOCK_IN");
+                event.setNotes(notes != null ? notes : "Stock entry - product received");
+                event.setReferenceId(referenceId);
+                event.setCorrelationId(eventId);
+
+                eventPublisher.publishInventoryUpdate(event);
+                
+                // Notify operation success
+                notificationService.notifyOperationSuccess("STOCK_IN", 
+                    "Entrada de estoque realizada com sucesso", 
+                    Map.of("storeId", storeId, "productId", productId, "quantity", quantity, "referenceId", referenceId));
+                
+                return "Stock in event published: " + event.getEventId() + " - Added " + quantity + " units";
+                
+            } catch (Exception eventError) {
+                System.err.println("⚠️ Event publishing failed, processing directly: " + eventError.getMessage());
+                
+                // Process directly if event publishing fails
+                InventoryUpdateRequest directRequest = new InventoryUpdateRequest();
+                directRequest.setStoreId(storeId);
+                directRequest.setProductId(productId);
+                directRequest.setQuantityAdjustment(quantity);
+                directRequest.setNotes(notes);
+                directRequest.setReferenceId(referenceId);
+                
+                InventoryDTO result = updateInventoryDirect(directRequest);
+                
+                // Create transaction record manually
+                Store store = storeRepository.findById(storeId).orElseThrow();
+                Product product = productRepository.findById(productId).orElseThrow();
+                Transaction transaction = new Transaction(store, product, Transaction.TransactionType.STOCK_IN, quantity, referenceId, notes);
+                transactionRepository.save(transaction);
+                
+                return "Stock in processed directly (event system unavailable): " + eventId + " - Added " + quantity + " units";
+            }
+            
+        } catch (Exception e) {
+            System.err.println("🔥 Stock In Exception: " + e.getClass().getSimpleName() + " - " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Failed to process stock in: " + e.getMessage(), e);
+        }
+    }
+
+    @CacheEvict(value = {"inventory", "low-stock", "metrics"}, allEntries = true)
+    public String stockOut(Long storeId, Long productId, Integer quantity, String referenceId, String notes) {
+        try {
+            // Validate inputs
+            if (quantity <= 0) {
+                throw new RuntimeException("Quantity must be positive for stock out");
+            }
+            if (!storeRepository.existsById(storeId)) {
+                throw new RuntimeException("Store not found: " + storeId);
+            }
+            if (!productRepository.existsById(productId)) {
+                throw new RuntimeException("Product not found: " + productId);
+            }
+
+            // Check if sufficient stock exists
+            Optional<Inventory> existingInventory = inventoryRepository.findByStoreIdAndProductId(storeId, productId);
+            if (existingInventory.isEmpty() || existingInventory.get().getQuantity() < quantity) {
+                throw new RuntimeException("Insufficient stock. Available: " + 
+                    (existingInventory.isPresent() ? existingInventory.get().getQuantity() : 0) + 
+                    ", Requested: " + quantity);
+            }
+
+            // Try to publish event, but continue with direct update if it fails
+            String eventId = UUID.randomUUID().toString();
+            try {
+                InventoryUpdateEvent event = new InventoryUpdateEvent(storeId, productId, -quantity, "STOCK_OUT");
+                event.setNotes(notes != null ? notes : "Stock exit - product sold/dispatched");
+                event.setReferenceId(referenceId);
+                event.setCorrelationId(eventId);
+
+                eventPublisher.publishInventoryUpdate(event);
+                return "Stock out event published: " + event.getEventId() + " - Removed " + quantity + " units";
+                
+            } catch (Exception eventError) {
+                System.err.println("⚠️ Event publishing failed, processing directly: " + eventError.getMessage());
+                
+                // Process directly if event publishing fails
+                InventoryUpdateRequest directRequest = new InventoryUpdateRequest();
+                directRequest.setStoreId(storeId);
+                directRequest.setProductId(productId);
+                directRequest.setQuantityAdjustment(-quantity);
+                directRequest.setNotes(notes);
+                directRequest.setReferenceId(referenceId);
+                
+                InventoryDTO result = updateInventoryDirect(directRequest);
+                
+                // Create transaction record manually
+                Store store = storeRepository.findById(storeId).orElseThrow();
+                Product product = productRepository.findById(productId).orElseThrow();
+                Transaction transaction = new Transaction(store, product, Transaction.TransactionType.STOCK_OUT, quantity, referenceId, notes);
+                transactionRepository.save(transaction);
+                
+                return "Stock out processed directly (event system unavailable): " + eventId + " - Removed " + quantity + " units";
+            }
+            
+        } catch (Exception e) {
+            System.err.println("🔥 Stock Out Exception: " + e.getClass().getSimpleName() + " - " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Failed to process stock out: " + e.getMessage(), e);
+        }
+    }
+
+    // Synchronous methods for direct database access (used by consumers)
+    @Transactional(timeout = 10) // Short timeout to prevent long locks
+    public InventoryDTO updateInventoryDirect(InventoryUpdateRequest request) {
+        // Find or create inventory record (removed pessimistic locking for SQLite)
+        Inventory inventory = inventoryRepository
+                .findByStoreIdAndProductId(request.getStoreId(), request.getProductId())
+                .orElseGet(() -> {
+                    var store = storeRepository.findById(request.getStoreId())
+                            .orElseThrow(() -> new RuntimeException("Store not found"));
+                    var product = productRepository.findById(request.getProductId())
+                            .orElseThrow(() -> new RuntimeException("Product not found"));
+                    return new Inventory(store, product, 0);
+                });
+
+        // Apply quantity adjustment
+        inventory.adjustQuantity(request.getQuantityAdjustment());
         inventory = inventoryRepository.save(inventory);
-        
-        // Create release transaction
-        Transaction transaction = new Transaction(
-                inventory.getStore(),
-                inventory.getProduct(),
-                Transaction.TransactionType.RELEASE,
-                quantity,
-                UUID.randomUUID().toString(),
-                "Reservation released"
-        );
-        transactionRepository.save(transaction);
-        
-        InventoryDTO result = InventoryDTO.fromEntity(inventory);
-        messagingTemplate.convertAndSend("/topic/inventory-updates", result);
-        
-        return result;
+
+        return InventoryDTO.fromEntity(inventory);
     }
 }

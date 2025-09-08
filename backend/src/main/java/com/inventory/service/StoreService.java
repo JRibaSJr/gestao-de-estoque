@@ -5,6 +5,8 @@ import com.inventory.model.Store;
 import com.inventory.repository.StoreRepository;
 import com.inventory.repository.InventoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,23 +25,29 @@ public class StoreService {
     @Autowired
     private InventoryRepository inventoryRepository;
 
+    @Cacheable(value = "stores", key = "'all'")
     public List<StoreDTO> getAllStores() {
+        System.out.println("🏪 Cache MISS: Loading all stores from database");
         return storeRepository.findAll().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
+    @Cacheable(value = "stores", key = "'id:' + #id")
     public Optional<StoreDTO> getStoreById(Long id) {
+        System.out.println("🏪 Cache MISS: Loading store " + id + " from database");
         return storeRepository.findById(id)
                 .map(this::convertToDTO);
     }
 
+    @CacheEvict(value = "stores", allEntries = true)
     public StoreDTO createStore(StoreDTO storeDTO) {
         Store store = convertToEntity(storeDTO);
         store = storeRepository.save(store);
         return convertToDTO(store);
     }
 
+    @CacheEvict(value = "stores", allEntries = true)
     public Optional<StoreDTO> updateStore(Long id, StoreDTO storeDTO) {
         return storeRepository.findById(id)
                 .map(store -> {
