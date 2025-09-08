@@ -39,7 +39,9 @@ public class ProductService {
                 .map(this::convertToDTO);
     }
 
+    @Cacheable(value = "products", key = "'sku:' + #sku")
     public Optional<ProductDTO> getProductBySku(String sku) {
+        System.out.println("🛍️ Cache MISS: Loading product with SKU " + sku + " from database");
         return productRepository.findBySku(sku)
                 .map(this::convertToDTO);
     }
