@@ -1,3 +1,4 @@
+/app/backend/src/main/java/com/inventory/service/NotificationService.java
 /app/backend/src/main/java/com/inventory/dto/InventoryUpdateRequest.java
 /app/backend/src/main/java/com/inventory/model/Store.java
 /app/backend/src/main/java/com/inventory/repository/TransactionRepository.java
