@@ -156,13 +156,13 @@ backend:
         agent: "testing"
         comment: "SQLite database accessible with proper schema and sample data (3 stores, 5 products, 15 inventory records). However, database not connected to running FastAPI backend which uses MongoDB instead."
 
-  - task: "RabbitMQ Integration" 
+  - task: "Kafka Integration" 
     implemented: true
-    working: true
-    file: "/app/backend/src/main/java/com/inventory/config/RabbitMQConfig.java"
+    working: false
+    file: "/app/backend/src/main/java/com/inventory/config/KafkaConfig.java"
     stuck_count: 0
-    priority: "medium"
-    needs_retesting: false
+    priority: "high"
+    needs_retesting: true
     status_history:
       - working: true
         agent: "main"
