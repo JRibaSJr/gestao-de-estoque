@@ -163,7 +163,7 @@ class InventoryIntegrationTest {
         lowStockProduct.setName("Low Stock Product");
         lowStockProduct.setSku("LOW-STOCK-001");
         lowStockProduct.setCategory("Test");
-        lowStockProduct.setPrice(5.99);
+        lowStockProduct.setPrice(new BigDecimal("5.99"));
         lowStockProduct = productRepository.save(lowStockProduct);
         
         Inventory lowStock = new Inventory(testStore, lowStockProduct, 5);
