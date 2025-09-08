@@ -32,7 +32,9 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
+    @Cacheable(value = "products", key = "'id:' + #id")
     public Optional<ProductDTO> getProductById(Long id) {
+        System.out.println("🛍️ Cache MISS: Loading product " + id + " from database");
         return productRepository.findById(id)
                 .map(this::convertToDTO);
     }
