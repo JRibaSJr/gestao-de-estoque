@@ -200,6 +200,18 @@ backend:
       - working: true
         agent: "testing"
         comment: "✅ COMPREHENSIVE VERIFICATION COMPLETE: All components working together successfully. Spring Boot backend (port 8001) serving inventory APIs with SQLite database (3 stores, 5 products, 15 inventory records). API Gateway (port 8080) running with Redis rate limiting and proper authentication. RabbitMQ messaging system operational with all queues created. Event-driven architecture functional - inventory updates queued for processing. External URL access working through https://distrib-inventory.preview.emergentagent.com/api/*. System ready for production use."
+  - task: "Switch to H2 in-memory for dev"
+    implemented: true
+    working: true
+    file: "/app/backend/src/main/resources/application.yml"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Configured H2 in-memory DB with create-drop and rich DataInitializer so the app starts with fresh seeded data each run."
+
 
   - task: "SQLite Database Concurrency Issue"
     implemented: false
