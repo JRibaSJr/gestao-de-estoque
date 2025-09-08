@@ -60,21 +60,21 @@ public class InventoryController {
     }
 
     @PostMapping("/update")
-    @Operation(summary = "Update inventory", description = "Update inventory quantity with transaction tracking")
-    public ResponseEntity<InventoryDTO> updateInventory(
+    @Operation(summary = "Update inventory", description = "Update inventory quantity with event-driven processing")
+    public ResponseEntity<Map<String, String>> updateInventory(
             @Parameter(description = "Inventory update request", required = true)
             @Valid @RequestBody InventoryUpdateRequest request) {
         try {
-            InventoryDTO updatedInventory = inventoryService.updateInventory(request);
-            return ResponseEntity.ok(updatedInventory);
+            String result = inventoryService.updateInventory(request);
+            return ResponseEntity.ok(Map.of("message", result));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
     @PostMapping("/transfer")
-    @Operation(summary = "Transfer inventory", description = "Transfer inventory between stores with transaction tracking")
-    public ResponseEntity<InventoryDTO> transferInventory(
+    @Operation(summary = "Transfer inventory", description = "Transfer inventory between stores using saga pattern")
+    public ResponseEntity<Map<String, String>> transferInventory(
             @Parameter(description = "Transfer request parameters", required = true)
             @RequestBody Map<String, Object> transferRequest) {
         try {
@@ -84,10 +84,10 @@ public class InventoryController {
             Integer quantity = Integer.valueOf(transferRequest.get("quantity").toString());
             String notes = transferRequest.get("notes") != null ? transferRequest.get("notes").toString() : "";
             
-            InventoryDTO result = inventoryService.transferInventory(fromStoreId, toStoreId, productId, quantity, notes);
-            return ResponseEntity.ok(result);
+            String result = inventoryService.transferInventory(fromStoreId, toStoreId, productId, quantity, notes);
+            return ResponseEntity.ok(Map.of("message", result));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
