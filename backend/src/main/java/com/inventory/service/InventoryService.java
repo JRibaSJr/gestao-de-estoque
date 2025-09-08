@@ -257,15 +257,38 @@ public class InventoryService {
                     ", Requested: " + quantity);
             }
 
-            // Create stock out event
-            InventoryUpdateEvent event = new InventoryUpdateEvent(storeId, productId, -quantity, "STOCK_OUT");
-            event.setNotes(notes != null ? notes : "Stock exit - product sold/dispatched");
-            event.setReferenceId(referenceId);
-            event.setCorrelationId(UUID.randomUUID().toString());
+            // Try to publish event, but continue with direct update if it fails
+            String eventId = UUID.randomUUID().toString();
+            try {
+                InventoryUpdateEvent event = new InventoryUpdateEvent(storeId, productId, -quantity, "STOCK_OUT");
+                event.setNotes(notes != null ? notes : "Stock exit - product sold/dispatched");
+                event.setReferenceId(referenceId);
+                event.setCorrelationId(eventId);
 
-            eventPublisher.publishInventoryUpdate(event);
-            
-            return "Stock out event published: " + event.getEventId() + " - Removed " + quantity + " units";
+                eventPublisher.publishInventoryUpdate(event);
+                return "Stock out event published: " + event.getEventId() + " - Removed " + quantity + " units";
+                
+            } catch (Exception eventError) {
+                System.err.println("⚠️ Event publishing failed, processing directly: " + eventError.getMessage());
+                
+                // Process directly if event publishing fails
+                InventoryUpdateRequest directRequest = new InventoryUpdateRequest();
+                directRequest.setStoreId(storeId);
+                directRequest.setProductId(productId);
+                directRequest.setQuantityAdjustment(-quantity);
+                directRequest.setNotes(notes);
+                directRequest.setReferenceId(referenceId);
+                
+                InventoryDTO result = updateInventoryDirect(directRequest);
+                
+                // Create transaction record manually
+                Store store = storeRepository.findById(storeId).orElseThrow();
+                Product product = productRepository.findById(productId).orElseThrow();
+                Transaction transaction = new Transaction(store, product, Transaction.TransactionType.STOCK_OUT, quantity, referenceId, notes);
+                transactionRepository.save(transaction);
+                
+                return "Stock out processed directly (event system unavailable): " + eventId + " - Removed " + quantity + " units";
+            }
             
         } catch (Exception e) {
             throw new RuntimeException("Failed to process stock out", e);
