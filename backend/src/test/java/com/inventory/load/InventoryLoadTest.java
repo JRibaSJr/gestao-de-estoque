@@ -56,7 +56,7 @@ class InventoryLoadTest {
             product.setName("Load Test Product " + i);
             product.setSku("LOAD-TEST-" + String.format("%03d", i));
             product.setCategory("Load Test Category");
-            product.setPrice(10.0 + i);
+            product.setPrice(new BigDecimal("10.0").add(new BigDecimal(i)));
             testProducts.add(productRepository.save(product));
         }
     }
