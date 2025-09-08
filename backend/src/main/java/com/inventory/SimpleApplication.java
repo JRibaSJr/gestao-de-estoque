@@ -19,15 +19,7 @@ public class SimpleApplication {
         SpringApplication.run(SimpleApplication.class, args);
     }
 
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**").allowedOrigins("*").allowedMethods("*");
-            }
-        };
-    }
+    // CORS já configurado em CorsConfig.java
 
     @GetMapping("/stores")
     public List<Map<String, Object>> getStores() {
