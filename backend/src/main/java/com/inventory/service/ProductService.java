@@ -80,6 +80,7 @@ public class ProductService {
                 });
     }
 
+    @CacheEvict(value = "products", allEntries = true)
     public boolean deleteProduct(Long id) {
         if (productRepository.existsById(id)) {
             // Check if product has inventory records
