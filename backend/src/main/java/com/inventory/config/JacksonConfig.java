@@ -20,10 +20,5 @@ public class JacksonConfig {
         return objectMapper;
     }
 
-    @Bean
-    @Primary
-    public MessageConverter rabbitMessageConverter() {
-        Jackson2JsonMessageConverter converter = new Jackson2JsonMessageConverter(objectMapper());
-        return converter;
-    }
+    // Kafka uses JsonSerializer/JsonDeserializer configured in KafkaConfig, no AMQP converter bean required.
 }
