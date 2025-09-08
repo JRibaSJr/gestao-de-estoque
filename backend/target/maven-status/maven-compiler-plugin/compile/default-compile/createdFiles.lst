@@ -24,6 +24,7 @@ com/inventory/publisher/InventoryEventPublisher.class
 com/inventory/model/Store.class
 com/inventory/model/SyncEvent$EventStatus.class
 com/inventory/DistributedInventorySystemApplication.class
+com/inventory/config/DataInitializer$1.class
 com/inventory/config/JacksonConfig.class
 com/inventory/service/ProductService.class
 com/inventory/controller/StoreController.class
