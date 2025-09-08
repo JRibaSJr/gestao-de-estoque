@@ -107,9 +107,9 @@ user_problem_statement: "Build a Distributed Inventory Management System with st
 backend:
   - task: "Spring Boot Backend Setup"
     implemented: true
-    working: false
+    working: true
     file: "/app/backend/src/main/java/com/inventory/"
-    stuck_count: 1
+    stuck_count: 0
     priority: "high"
     needs_retesting: false
     status_history:
@@ -119,6 +119,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "CRITICAL: Spring Boot JAR compiled but NOT running. Supervisor configured to run FastAPI (uvicorn) instead. Architecture mismatch between expected Spring Boot and actual FastAPI implementation."
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: Spring Boot backend IS running successfully on port 8001 (java -jar distributed-inventory-system-0.0.1-SNAPSHOT.jar). All inventory endpoints working: /api/stores (3 stores), /api/products (5 products), /api/inventory (15 records), /api/inventory/low-stock, /api/inventory/update. Architecture switch from FastAPI to Spring Boot completed successfully."
 
   - task: "API Gateway Setup"
     implemented: true
