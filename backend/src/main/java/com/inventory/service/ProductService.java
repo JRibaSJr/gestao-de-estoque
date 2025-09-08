@@ -46,6 +46,7 @@ public class ProductService {
                 .map(this::convertToDTO);
     }
 
+    @CacheEvict(value = "products", allEntries = true)
     public ProductDTO createProduct(ProductDTO productDTO) {
         // Check if SKU already exists
         if (productRepository.findBySku(productDTO.getSku()).isPresent()) {
