@@ -130,8 +130,8 @@ public class SyncService {
         status.put("failed", failedCount);
         status.put("timestamp", LocalDateTime.now());
         
-        List<Store> storesNeedingSync = storeService.getStoresNeedingSync();
-        status.put("storesNeedingSync", storesNeedingSync.size());
+        int storesNeedingSyncCount = storeService.getStoresNeedingSync().size();
+        status.put("storesNeedingSync", storesNeedingSyncCount);
         
         return status;
     }
