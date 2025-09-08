@@ -67,7 +67,9 @@ public class InventoryService {
                 .collect(Collectors.toList());
     }
 
+    @Cacheable(value = "inventory", key = "'product:' + #productId")
     public List<InventoryDTO> getInventoryByProduct(Long productId) {
+        System.out.println("📦 Cache MISS: Loading inventory for product " + productId + " from database");
         return inventoryRepository.findByProductId(productId).stream()
                 .map(InventoryDTO::fromEntity)
                 .collect(Collectors.toList());
