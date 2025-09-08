@@ -75,8 +75,8 @@ public class ApiGatewayApplication {
 						.setName("sync-service")
 						.setFallbackUri("forward:/fallback/sync"))
 					.requestRateLimiter(config -> config
-						.setRateLimiter(redisRateLimiter())
-						.setKeyResolver(userKeyResolver()))
+						.setRateLimiter(redisRateLimiter)
+						.setKeyResolver(userKeyResolver))
 					.addRequestHeader("X-Gateway-Source", "api-gateway"))
 				.uri("http://localhost:8001"))
 				
