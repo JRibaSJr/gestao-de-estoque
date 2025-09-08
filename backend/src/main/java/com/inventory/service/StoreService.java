@@ -40,6 +40,7 @@ public class StoreService {
                 .map(this::convertToDTO);
     }
 
+    @CacheEvict(value = "stores", allEntries = true)
     public StoreDTO createStore(StoreDTO storeDTO) {
         Store store = convertToEntity(storeDTO);
         store = storeRepository.save(store);
