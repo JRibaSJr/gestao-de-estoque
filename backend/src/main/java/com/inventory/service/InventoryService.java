@@ -228,6 +228,12 @@ public class InventoryService {
                 event.setCorrelationId(eventId);
 
                 eventPublisher.publishInventoryUpdate(event);
+                
+                // Notify operation success
+                notificationService.notifyOperationSuccess("STOCK_IN", 
+                    "Entrada de estoque realizada com sucesso", 
+                    Map.of("storeId", storeId, "productId", productId, "quantity", quantity, "referenceId", referenceId));
+                
                 return "Stock in event published: " + event.getEventId() + " - Added " + quantity + " units";
                 
             } catch (Exception eventError) {
