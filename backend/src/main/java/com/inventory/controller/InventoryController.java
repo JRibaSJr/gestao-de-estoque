@@ -133,4 +133,46 @@ public class InventoryController {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
+
+    @PostMapping("/stock-in")
+    @Operation(summary = "Stock In - Product Entry", description = "Record product entry/receipt into store inventory via event-driven processing")
+    public ResponseEntity<Map<String, String>> stockIn(
+            @Parameter(description = "Stock in request", required = true)
+            @RequestBody Map<String, Object> stockInRequest) {
+        try {
+            Long storeId = Long.valueOf(stockInRequest.get("storeId").toString());
+            Long productId = Long.valueOf(stockInRequest.get("productId").toString());
+            Integer quantity = Integer.valueOf(stockInRequest.get("quantity").toString());
+            String referenceId = stockInRequest.get("referenceId") != null ? 
+                stockInRequest.get("referenceId").toString() : null;
+            String notes = stockInRequest.get("notes") != null ? 
+                stockInRequest.get("notes").toString() : "Stock entry";
+            
+            String result = inventoryService.stockIn(storeId, productId, quantity, referenceId, notes);
+            return ResponseEntity.ok(Map.of("message", result));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/stock-out")
+    @Operation(summary = "Stock Out - Product Exit", description = "Record product exit/sale from store inventory via event-driven processing")
+    public ResponseEntity<Map<String, String>> stockOut(
+            @Parameter(description = "Stock out request", required = true)
+            @RequestBody Map<String, Object> stockOutRequest) {
+        try {
+            Long storeId = Long.valueOf(stockOutRequest.get("storeId").toString());
+            Long productId = Long.valueOf(stockOutRequest.get("productId").toString());
+            Integer quantity = Integer.valueOf(stockOutRequest.get("quantity").toString());
+            String referenceId = stockOutRequest.get("referenceId") != null ? 
+                stockOutRequest.get("referenceId").toString() : null;
+            String notes = stockOutRequest.get("notes") != null ? 
+                stockOutRequest.get("notes").toString() : "Stock exit/sale";
+            
+            String result = inventoryService.stockOut(storeId, productId, quantity, referenceId, notes);
+            return ResponseEntity.ok(Map.of("message", result));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
 }
