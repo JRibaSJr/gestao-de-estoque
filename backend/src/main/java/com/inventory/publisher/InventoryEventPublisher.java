@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 public class InventoryEventPublisher {
 
     @Autowired
-    private KafkaTemplate&lt;String, Object&gt; kafkaTemplate;
+    private KafkaTemplate<String, Object> kafkaTemplate;
 
     public void publishInventoryUpdate(InventoryUpdateEvent event) {
         try {
