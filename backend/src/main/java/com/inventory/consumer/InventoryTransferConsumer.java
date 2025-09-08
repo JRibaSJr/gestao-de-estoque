@@ -48,11 +48,8 @@ public class InventoryTransferConsumer {
 
         } catch (Exception e) {
             System.err.println("❌ Failed to process transfer event: " + event.getEventId() + " - " + e.getMessage());
-            try {
-                // NACK and don't requeue for critical failures
-                channel.basicNack(deliveryTag, false, false);
-            } catch (Exception nackError) {
-                System.err.println("❌ Failed to NACK message: " + nackError.getMessage());
+            if (ack != null) {
+                try { ack.nack(1000); } catch (Exception ignore) {}
             }
         }
     }
