@@ -158,8 +158,11 @@ public class InventoryService {
         }
     }
 
+    @Cacheable(value = "low-stock", key = "'threshold:' + #threshold")
     public List<InventoryDTO> getLowStockItems(Integer threshold) {
-        return inventoryRepository.findLowStockItems(threshold != null ? threshold : 10).stream()
+        int finalThreshold = threshold != null ? threshold : 10;
+        System.out.println("⚠️ Cache MISS: Loading low stock items (threshold: " + finalThreshold + ") from database");
+        return inventoryRepository.findLowStockItems(finalThreshold).stream()
                 .map(InventoryDTO::fromEntity)
                 .collect(Collectors.toList());
     }
