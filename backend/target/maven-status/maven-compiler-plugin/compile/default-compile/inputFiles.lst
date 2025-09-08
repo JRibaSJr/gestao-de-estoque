@@ -33,6 +33,7 @@
 /app/backend/src/main/java/com/inventory/consumer/InventoryAuditConsumer.java
 /app/backend/src/main/java/com/inventory/config/SqliteRetryConfig.java
 /app/backend/src/main/java/com/inventory/model/Transaction.java
+/app/backend/src/main/java/com/inventory/SimpleApplication.java
 /app/backend/src/main/java/com/inventory/controller/ProductController.java
 /app/backend/src/main/java/com/inventory/service/SyncService.java
 /app/backend/src/main/java/com/inventory/dto/StoreDTO.java

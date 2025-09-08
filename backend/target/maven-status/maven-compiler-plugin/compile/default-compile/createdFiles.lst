@@ -36,6 +36,7 @@ com/inventory/config/DataInitializer.class
 com/inventory/dto/InventoryDTO.class
 com/inventory/consumer/InventoryAuditConsumer.class
 com/inventory/repository/StoreRepository.class
+com/inventory/SimpleApplication$1.class
 com/inventory/service/SyncService.class
 com/inventory/controller/WebSocketController.class
 com/inventory/saga/InventoryTransferSaga.class
@@ -49,6 +50,7 @@ com/inventory/controller/RabbitMQTestController.class
 com/inventory/model/SyncEvent$EventType.class
 com/inventory/config/CorsConfig$1.class
 com/inventory/dto/ProductDTO.class
+com/inventory/SimpleApplication.class
 com/inventory/consumer/InventoryUpdateConsumer.class
 com/inventory/model/Store$StoreStatus.class
 com/inventory/config/CorsConfig.class
