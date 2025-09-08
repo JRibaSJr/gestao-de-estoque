@@ -24,9 +24,10 @@ public class InventoryAuditConsumer {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @RabbitListener(queues = RabbitMQConfig.INVENTORY_AUDIT_QUEUE)
+    @KafkaListener(topics = {"notifications.events"}, groupId = "inventory-service")
     @Transactional
-    public void handleInventoryAudit(InventoryAuditEvent event, Channel channel, @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag) {
+    public void handleInventoryAudit(ConsumerRecord<String, InventoryAuditEvent> record, Acknowledgment ack) {
+        InventoryAuditEvent event = record.value();
         try {
             System.out.println("📝 Processing inventory audit event: " + event.getEventId() + " - Action: " + event.getAction());
             
