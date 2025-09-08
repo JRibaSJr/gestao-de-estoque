@@ -201,6 +201,7 @@ public class InventoryService {
         }
     }
 
+    @CacheEvict(value = {"inventory", "low-stock", "metrics"}, allEntries = true)
     public String stockIn(Long storeId, Long productId, Integer quantity, String referenceId, String notes) {
         try {
             // Validate inputs
