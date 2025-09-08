@@ -201,6 +201,18 @@ backend:
         agent: "testing"
         comment: "✅ COMPREHENSIVE VERIFICATION COMPLETE: All components working together successfully. Spring Boot backend (port 8001) serving inventory APIs with SQLite database (3 stores, 5 products, 15 inventory records). API Gateway (port 8080) running with Redis rate limiting and proper authentication. RabbitMQ messaging system operational with all queues created. Event-driven architecture functional - inventory updates queued for processing. External URL access working through https://stockhub-8.preview.emergentagent.com/api/*. System ready for production use."
 
+  - task: "SQLite Database Concurrency Issue"
+    implemented: false
+    working: false
+    file: "/app/backend/src/main/java/com/inventory/config/DataSourceConfig.java"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "❌ SQLite Database Locking Issue: RabbitMQ consumers failing to process events due to [SQLITE_BUSY] database is locked errors. Events are successfully published to queues (inventory.dlq: 5 messages, inventory.update.queue: 3 messages) but consumers cannot update database due to concurrent access conflicts. This prevents transaction records from being created and inventory quantities from being updated via messaging system. Stock In/Out operations complete successfully but event processing chain is broken. Need to implement proper SQLite connection pooling, WAL mode, or consider switching to PostgreSQL for better concurrency support."
+
   - task: "Stock In/Stock Out Functionality"
     implemented: true
     working: true
