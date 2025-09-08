@@ -29,6 +29,11 @@ public class DataInitializer implements CommandLineRunner {
     
     @Autowired
     private InventoryRepository inventoryRepository;
+    
+    @Autowired
+    private TransactionRepository transactionRepository;
+
+    private Random random = new Random();
 
     @Override
     public void run(String... args) throws Exception {
