@@ -1,0 +1,115 @@
+server:
+  port: 8001
+
+spring:
+  application:
+    name: distributed-inventory-system
+  
+  datasource:
+    url: jdbc:sqlite:inventory.db
+    driver-class-name: org.sqlite.JDBC
+    
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.community.dialect.SQLiteDialect
+        format_sql: true
+        id:
+          new_generator_mappings: false
+    generate-ddl: true
+    
+  # RabbitMQ Configuration
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    listener:
+      simple:
+        retry:
+          enabled: true
+          initial-interval: 2s
+          max-attempts: 3
+          max-interval: 10s
+          multiplier: 2
+        default-requeue-rejected: false
+        acknowledge-mode: manual
+        
+  # SQLite Optimizations for Concurrency
+  datasource:
+    url: jdbc:sqlite:inventory.db?journal_mode=WAL&busy_timeout=5000&synchronous=NORMAL&cache_size=10000
+    driver-class-name: org.sqlite.JDBC
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 2
+      connection-timeout: 10000
+      idle-timeout: 300000
+      max-lifetime: 600000
+
+  # Redis Configuration
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 20
+          max-idle: 10
+          min-idle: 5
+  
+  # Cache Configuration
+  cache:
+    type: redis
+    redis:
+      time-to-live: 600000  # 10 minutes default
+      cache-null-values: false
+
+  web:
+    cors:
+      allowed-origins: "*"
+      allowed-methods: "*"
+      allowed-headers: "*"
+
+# Actuator for monitoring
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+
+# API Documentation
+springdoc:
+  api-docs:
+    path: /api/docs
+  swagger-ui:
+    path: /api/swagger-ui.html
+
+# Resilience4j Configuration  
+resilience4j:
+  circuitbreaker:
+    instances:
+      inventory-service:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        minimumNumberOfCalls: 5
+  retry:
+    instances:
+      inventory-service:
+        maxAttempts: 3
+        waitDuration: 1s
+        exponentialBackoffMultiplier: 2
+
+# Logging
+logging:
+  level:
+    com.inventory: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
