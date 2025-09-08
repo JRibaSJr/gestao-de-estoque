@@ -153,7 +153,7 @@ public class InventoryService {
             event.setNotes(notes);
             event.setCorrelationId(sagaId);
 
-            // Publish to RabbitMQ for saga orchestration
+            // Publish to Kafka for saga orchestration
             eventPublisher.publishInventoryTransfer(event);
             
             return "Inventory transfer started with saga ID: " + sagaId;
