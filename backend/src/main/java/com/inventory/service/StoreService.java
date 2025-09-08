@@ -47,6 +47,7 @@ public class StoreService {
         return convertToDTO(store);
     }
 
+    @CacheEvict(value = "stores", allEntries = true)
     public Optional<StoreDTO> updateStore(Long id, StoreDTO storeDTO) {
         return storeRepository.findById(id)
                 .map(store -> {
