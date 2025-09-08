@@ -31,14 +31,9 @@ public class RabbitMQConfig {
     public static final String INVENTORY_AUDIT_KEY = "inventory.audit";
 
     @Bean
-    public MessageConverter messageConverter() {
-        return new Jackson2JsonMessageConverter();
-    }
-
-    @Bean
-    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
+    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory, MessageConverter messageConverter) {
         RabbitTemplate template = new RabbitTemplate(connectionFactory);
-        template.setMessageConverter(messageConverter());
+        template.setMessageConverter(messageConverter);
         template.setConfirmCallback((correlationData, ack, cause) -> {
             if (!ack) {
                 System.err.println("Message not delivered to exchange: " + cause);
