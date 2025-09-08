@@ -14,7 +14,7 @@ import subprocess
 import sys
 
 # Configuration
-BACKEND_URL = "https://stockhub-8.preview.emergentagent.com/api"
+BACKEND_URL = "https://distrib-inventory.preview.emergentagent.com/api"
 API_GATEWAY_URL = "http://localhost:8080"
 DIRECT_BACKEND_URL = "http://localhost:8001/api"
 SQLITE_DB_PATH = "/app/backend/inventory.db"

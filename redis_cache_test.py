@@ -12,7 +12,7 @@ from datetime import datetime
 import sys
 
 # Configuration
-BACKEND_URL = "https://stockhub-8.preview.emergentagent.com/api"
+BACKEND_URL = "https://distrib-inventory.preview.emergentagent.com/api"
 
 class RedisCacheTest:
     def __init__(self):

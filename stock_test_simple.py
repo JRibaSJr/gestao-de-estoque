@@ -8,7 +8,7 @@ import json
 import time
 
 # Configuration
-BACKEND_URL = "https://stockhub-8.preview.emergentagent.com"
+BACKEND_URL = "https://distrib-inventory.preview.emergentagent.com"
 
 def test_stock_operations():
     """Test stock in and stock out operations directly"""

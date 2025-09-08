@@ -10,7 +10,7 @@ import time
 from datetime import datetime
 
 # Configuration
-BACKEND_URL = "https://stockhub-8.preview.emergentagent.com"
+BACKEND_URL = "https://distrib-inventory.preview.emergentagent.com"
 
 class StockOperationsTest:
     def __init__(self):
