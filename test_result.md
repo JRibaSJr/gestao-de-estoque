@@ -201,6 +201,18 @@ backend:
         agent: "testing"
         comment: "✅ COMPREHENSIVE VERIFICATION COMPLETE: All components working together successfully. Spring Boot backend (port 8001) serving inventory APIs with SQLite database (3 stores, 5 products, 15 inventory records). API Gateway (port 8080) running with Redis rate limiting and proper authentication. RabbitMQ messaging system operational with all queues created. Event-driven architecture functional - inventory updates queued for processing. External URL access working through https://stockhub-8.preview.emergentagent.com/api/*. System ready for production use."
 
+  - task: "Stock In/Stock Out Functionality"
+    implemented: true
+    working: false
+    file: "/app/backend/src/main/java/com/inventory/controller/InventoryController.java"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL ISSUE: Stock In/Out endpoints implemented but failing due to RabbitMQ serialization error. Endpoints POST /api/inventory/stock-in and /api/inventory/stock-out exist with proper validation (store/product existence, quantity checks, insufficient stock detection). Transaction tracking implemented with correct TransactionType enum (STOCK_IN, STOCK_OUT, ADJUSTMENT, RESERVATION, RELEASE). RabbitMQ queues created and consumers listening. Core issue: Jackson JSON serialization fails with 'Failed to convert Message content' when publishing InventoryUpdateEvent to RabbitMQ. LocalDateTime serialization in InventoryEvent base class causing the failure. All validation queries execute successfully, but event publishing prevents completion. Implemented fallback mechanism to process directly when events fail, but fallback not triggering properly. Architecture is sound, needs RabbitMQ serialization fix."
+
 frontend:
   - task: "React Frontend Update"
     implemented: false
