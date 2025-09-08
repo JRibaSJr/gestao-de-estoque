@@ -112,7 +112,7 @@ public class InventoryService {
             event.setVersion(request.getVersion());
             event.setCorrelationId(UUID.randomUUID().toString());
 
-            // Publish to RabbitMQ for asynchronous processing
+            // Publish to Kafka for asynchronous processing
             eventPublisher.publishInventoryUpdate(event);
             
             return "Inventory update event published: " + event.getEventId();
