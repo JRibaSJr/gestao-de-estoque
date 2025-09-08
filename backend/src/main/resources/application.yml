@@ -5,7 +5,6 @@ server:
 spring:
   application:
     name: inventory-backend
-
   datasource:
     url: jdbc:h2:mem:inventorydb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driver-class-name: org.h2.Driver
@@ -23,27 +22,14 @@ spring:
         dialect: org.hibernate.dialect.H2Dialect
         format_sql: true
     show-sql: true
-
   jackson:
     serialization:
       WRITE_DATES_AS_TIMESTAMPS: false
-
   data:
     redis:
       host: localhost
       port: 6379
       timeout: 2000ms
-
-# Kafka (Redpanda) configuration
-kafka:
-  topics:
-    inventory-events: inventory.events
-    inventory-commands-stock: inventory.commands.stock
-    transfers-commands: transfers.commands
-    notifications-events: notifications.events
-    dlq: inventory.dlq
-
-spring:
   kafka:
     bootstrap-servers: localhost:9092
     properties:
