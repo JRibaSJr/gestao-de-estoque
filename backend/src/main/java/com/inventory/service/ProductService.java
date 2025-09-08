@@ -104,7 +104,9 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
+    @Cacheable(value = "products", key = "'categories'")
     public List<String> getAllCategories() {
+        System.out.println("🏷️ Cache MISS: Loading product categories from database");
         return productRepository.findAllCategories();
     }
 
