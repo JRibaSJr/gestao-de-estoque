@@ -18,8 +18,9 @@ public class InventoryTransferConsumer {
     @Autowired
     private InventoryTransferSaga transferSaga;
 
-    @RabbitListener(queues = RabbitMQConfig.INVENTORY_TRANSFER_QUEUE)
-    public void handleInventoryTransfer(InventoryTransferEvent event, Channel channel, @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag) {
+    @KafkaListener(topics = {"transfers.commands"}, groupId = "inventory-service")
+    public void handleInventoryTransfer(ConsumerRecord<String, InventoryTransferEvent> record, Acknowledgment ack) { 
+        InventoryTransferEvent event = record.value();
         try {
             System.out.println("🔄 Processing inventory transfer event: " + event.getEventId() + " - Type: " + event.getTransferType());
             
