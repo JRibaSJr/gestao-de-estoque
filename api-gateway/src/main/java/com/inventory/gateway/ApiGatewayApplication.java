@@ -17,7 +17,7 @@ public class ApiGatewayApplication {
 	}
 
 	@Bean
-	public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
+	public RouteLocator customRouteLocator(RouteLocatorBuilder builder, RedisRateLimiter redisRateLimiter, KeyResolver userKeyResolver) {
 		return builder.routes()
 			// Inventory Service Routes
 			.route("inventory-service", r -> r.path("/api/inventory/**")
