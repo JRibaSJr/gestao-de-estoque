@@ -101,8 +101,8 @@ public class InventoryController {
     }
 
     @PostMapping("/reserve")
-    @Operation(summary = "Reserve inventory", description = "Reserve inventory quantity for a specific transaction")
-    public ResponseEntity<InventoryDTO> reserveInventory(
+    @Operation(summary = "Reserve inventory", description = "Reserve inventory quantity using event-driven processing")
+    public ResponseEntity<Map<String, String>> reserveInventory(
             @Parameter(description = "Reservation request", required = true)
             @RequestBody Map<String, Object> reservationRequest) {
         try {
@@ -110,16 +110,16 @@ public class InventoryController {
             Long productId = Long.valueOf(reservationRequest.get("productId").toString());
             Integer quantity = Integer.valueOf(reservationRequest.get("quantity").toString());
             
-            InventoryDTO result = inventoryService.reserveInventory(storeId, productId, quantity);
-            return ResponseEntity.ok(result);
+            String result = inventoryService.reserveInventory(storeId, productId, quantity);
+            return ResponseEntity.ok(Map.of("message", result));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
     @PostMapping("/release-reservation")
-    @Operation(summary = "Release reservation", description = "Release previously reserved inventory quantity")
-    public ResponseEntity<InventoryDTO> releaseReservation(
+    @Operation(summary = "Release reservation", description = "Release previously reserved inventory using event-driven processing")
+    public ResponseEntity<Map<String, String>> releaseReservation(
             @Parameter(description = "Release request", required = true)
             @RequestBody Map<String, Object> releaseRequest) {
         try {
@@ -127,10 +127,10 @@ public class InventoryController {
             Long productId = Long.valueOf(releaseRequest.get("productId").toString());
             Integer quantity = Integer.valueOf(releaseRequest.get("quantity").toString());
             
-            InventoryDTO result = inventoryService.releaseReservation(storeId, productId, quantity);
-            return ResponseEntity.ok(result);
+            String result = inventoryService.releaseReservation(storeId, productId, quantity);
+            return ResponseEntity.ok(Map.of("message", result));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 }
