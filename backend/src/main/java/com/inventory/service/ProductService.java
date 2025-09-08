@@ -58,6 +58,7 @@ public class ProductService {
         return convertToDTO(product);
     }
 
+    @CacheEvict(value = "products", allEntries = true)
     public Optional<ProductDTO> updateProduct(Long id, ProductDTO productDTO) {
         return productRepository.findById(id)
                 .map(product -> {
