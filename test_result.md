@@ -114,6 +114,10 @@ backend:
     needs_retesting: false
     status_history:
       - working: true
+      - working: false
+        agent: "main"
+        comment: "Migrated to Kafka; runtime testing pending due to Java tooling absence in container. Static verification passed."
+
         agent: "main"
         comment: "Spring Boot backend with SQLite, JPA, and RabbitMQ integration compiled and running successfully"
       - working: false
