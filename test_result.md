@@ -200,9 +200,9 @@ test_plan:
   current_focus:
     - "Spring Boot Backend Setup"
     - "API Gateway Setup"
-    - "Database Configuration"
-    - "RabbitMQ Integration"
-  stuck_tasks: []
+  stuck_tasks: 
+    - "Spring Boot Backend Setup"
+    - "API Gateway Setup"
   test_all: false
   test_priority: "high_first"
 
