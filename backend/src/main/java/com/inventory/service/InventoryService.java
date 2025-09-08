@@ -125,6 +125,7 @@ public class InventoryService {
     }
 
     @CircuitBreaker(name = "inventory-service")
+    @CacheEvict(value = {"inventory", "low-stock", "metrics"}, allEntries = true)
     public String transferInventory(Long fromStoreId, Long toStoreId, Long productId, Integer quantity, String notes) {
         try {
             // Validate stores and product exist
