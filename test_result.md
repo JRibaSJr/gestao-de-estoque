@@ -165,6 +165,18 @@ backend:
         agent: "testing"
         comment: "Minor: RabbitMQ process running successfully, Redis accessible. Management interface not available but core functionality working. Configuration exists in Spring Boot code but not connected to running FastAPI backend."
 
+  - task: "FastAPI Backend (Currently Running)"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "FastAPI backend running successfully on port 8001 with MongoDB integration. Basic CRUD operations for status checks working. Accessible via external URL. This is the actual running backend, not the Spring Boot implementation."
+
 frontend:
   - task: "React Frontend Update"
     implemented: false
