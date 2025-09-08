@@ -254,6 +254,9 @@ frontend:
         comment: "Frontend needs to be updated to integrate with Spring Boot backend via API Gateway"
 
 metadata:
+  test_all: false
+  test_priority: "high_first"
+  
   created_by: "main_agent"
   version: "1.0"
   test_sequence: 1
