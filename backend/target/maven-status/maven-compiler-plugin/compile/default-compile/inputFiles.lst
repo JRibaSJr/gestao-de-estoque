@@ -1,0 +1,8 @@
+/app/backend/src/main/java/com/inventory/model/Store.java
+/app/backend/src/main/java/com/inventory/model/Inventory.java
+/app/backend/src/main/java/com/inventory/model/SyncEvent.java
+/app/backend/src/main/java/com/inventory/DistributedInventorySystemApplication.java
+/app/backend/src/main/java/com/inventory/config/CorsConfig.java
+/app/backend/src/main/java/com/inventory/model/Product.java
+/app/backend/src/main/java/com/inventory/config/WebSocketConfig.java
+/app/backend/src/main/java/com/inventory/model/Transaction.java

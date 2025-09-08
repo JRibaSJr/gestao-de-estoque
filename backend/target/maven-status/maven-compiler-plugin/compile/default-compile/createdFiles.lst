@@ -1,0 +1,13 @@
+com/inventory/model/Inventory.class
+com/inventory/model/Store.class
+com/inventory/model/SyncEvent$EventStatus.class
+com/inventory/config/WebSocketConfig.class
+com/inventory/model/Product.class
+com/inventory/DistributedInventorySystemApplication.class
+com/inventory/model/Transaction.class
+com/inventory/model/SyncEvent$EventType.class
+com/inventory/config/CorsConfig$1.class
+com/inventory/model/Store$StoreStatus.class
+com/inventory/config/CorsConfig.class
+com/inventory/model/SyncEvent.class
+com/inventory/model/Transaction$TransactionType.class
