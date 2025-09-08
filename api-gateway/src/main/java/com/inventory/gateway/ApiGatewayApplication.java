@@ -63,8 +63,8 @@ public class ApiGatewayApplication {
 						.setName("transaction-service")
 						.setFallbackUri("forward:/fallback/transactions"))
 					.requestRateLimiter(config -> config
-						.setRateLimiter(redisRateLimiter())
-						.setKeyResolver(userKeyResolver()))
+						.setRateLimiter(redisRateLimiter)
+						.setKeyResolver(userKeyResolver))
 					.addRequestHeader("X-Gateway-Source", "api-gateway"))
 				.uri("http://localhost:8001"))
 				
