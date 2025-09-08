@@ -50,11 +50,8 @@ public class InventoryAuditConsumer {
 
         } catch (Exception e) {
             System.err.println("❌ Failed to process audit event: " + event.getEventId() + " - " + e.getMessage());
-            try {
-                // ACK anyway for audit events to avoid blocking
-                channel.basicAck(deliveryTag, false);
-            } catch (Exception ackError) {
-                System.err.println("❌ Failed to ACK audit message: " + ackError.getMessage());
+            if (ack != null) {
+                try { ack.acknowledge(); } catch (Exception ignore) {}
             }
         }
     }
