@@ -231,6 +231,18 @@ backend:
         agent: "testing"
         comment: "❌ SQLite Database Locking Issue: RabbitMQ consumers failing to process events due to [SQLITE_BUSY] database is locked errors. Events are successfully published to queues (inventory.dlq: 5 messages, inventory.update.queue: 3 messages) but consumers cannot update database due to concurrent access conflicts. This prevents transaction records from being created and inventory quantities from being updated via messaging system. Stock In/Out operations complete successfully but event processing chain is broken. Need to implement proper SQLite connection pooling, WAL mode, or consider switching to PostgreSQL for better concurrency support."
 
+  - task: "API Routes Verification"
+    implemented: true
+    working: true
+    file: "/app/backend/src/main/java/com/inventory/controller/InventoryController.java"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ API ROUTES VERIFIED: InventoryController uses @RequestMapping('/api/inventory') prefix correctly. All endpoints (stock-in, stock-out, transfer, update, reserve, low-stock) properly configured. Frontend api.js correctly uses REACT_APP_BACKEND_URL + '/api' for backend communication. API routing architecture consistent between backend and frontend."
+
   - task: "Stock In/Stock Out Functionality"
     implemented: true
     working: true
