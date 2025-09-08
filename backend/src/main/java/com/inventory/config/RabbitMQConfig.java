@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 // @Configuration (removed after Kafka migration)
-public class RabbitMQConfig {
+public class RabbitMQConfig { // Deprecated after Kafka migration
 
     // Exchange names
     public static final String INVENTORY_EXCHANGE = "inventory.exchange";
