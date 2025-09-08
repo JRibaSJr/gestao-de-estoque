@@ -44,8 +44,7 @@ public class InventoryAuditConsumer {
             // Save audit record
             syncEventRepository.save(auditRecord);
 
-            // ACK the message
-            channel.basicAck(deliveryTag, false);
+            if (ack != null) ack.acknowledge();
             
             System.out.println("✅ Successfully processed audit event: " + event.getEventId());
 
