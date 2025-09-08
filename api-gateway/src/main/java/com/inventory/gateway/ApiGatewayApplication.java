@@ -93,8 +93,8 @@ public class ApiGatewayApplication {
 						.setName("test-service")
 						.setFallbackUri("forward:/fallback/test"))
 					.requestRateLimiter(config -> config
-						.setRateLimiter(redisRateLimiter())
-						.setKeyResolver(userKeyResolver()))
+						.setRateLimiter(redisRateLimiter)
+						.setKeyResolver(userKeyResolver))
 					.addRequestHeader("X-Gateway-Source", "api-gateway"))
 				.uri("http://localhost:8001"))
 			.build();
