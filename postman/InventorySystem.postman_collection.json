@@ -1,0 +1,71 @@
+{
+  "info": {
+    "_postman_id": "b6e0d5f4-4a7a-4b7a-9c2f-1d5b0caa0001",
+    "name": "Distributed Inventory System",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get All Inventory",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/api/inventory", "host": ["{{baseUrl}}"], "path": ["api","inventory"] }
+      }
+    },
+    {
+      "name": "Get Low Stock",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/api/inventory/low-stock?threshold=10", "host": ["{{baseUrl}}"], "path": ["api","inventory","low-stock"], "query":[{"key":"threshold","value":"10"}] }
+      }
+    },
+    {
+      "name": "Stock In",
+      "request": {
+        "method": "POST",
+        "header": [{"key":"Content-Type","value":"application/json"}],
+        "body": {"mode":"raw","raw":"{\n  \"storeId\": 1,\n  \"productId\": 1,\n  \"quantity\": 5,\n  \"referenceId\": \"PO-LOCAL-001\",\n  \"notes\": \"Postman stock in\"\n}"},
+        "url": { "raw": "{{baseUrl}}/api/inventory/stock-in", "host": ["{{baseUrl}}"], "path": ["api","inventory","stock-in"] }
+      }
+    },
+    {
+      "name": "Stock Out",
+      "request": {
+        "method": "POST",
+        "header": [{"key":"Content-Type","value":"application/json"}],
+        "body": {"mode":"raw","raw":"{\n  \"storeId\": 1,\n  \"productId\": 1,\n  \"quantity\": 2,\n  \"referenceId\": \"SALE-LOCAL-001\",\n  \"notes\": \"Postman stock out\"\n}"},
+        "url": { "raw": "{{baseUrl}}/api/inventory/stock-out", "host": ["{{baseUrl}}"], "path": ["api","inventory","stock-out"] }
+      }
+    },
+    {
+      "name": "Transfer Inventory",
+      "request": {
+        "method": "POST",
+        "header": [{"key":"Content-Type","value":"application/json"}],
+        "body": {"mode":"raw","raw":"{\n  \"fromStoreId\": 1,\n  \"toStoreId\": 2,\n  \"productId\": 1,\n  \"quantity\": 1,\n  \"notes\": \"Postman transfer\"\n}"},
+        "url": { "raw": "{{baseUrl}}/api/inventory/transfer", "host": ["{{baseUrl}}"], "path": ["api","inventory","transfer"] }
+      }
+    },
+    {
+      "name": "Get Stores",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/api/stores", "host": ["{{baseUrl}}"], "path": ["api","stores"] }
+      }
+    },
+    {
+      "name": "Get Products",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/api/products", "host": ["{{baseUrl}}"], "path": ["api","products"] }
+      }
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" }
+  ]
+}
