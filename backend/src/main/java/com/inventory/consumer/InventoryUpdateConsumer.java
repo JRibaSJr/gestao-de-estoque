@@ -65,16 +65,37 @@ public class InventoryUpdateConsumer {
 
             int oldQuantity = inventory.getQuantity();
             
-            // Apply operation
+            // Apply operation and determine transaction type
+            Transaction.TransactionType transactionType;
+            
             switch (event.getOperation().toUpperCase()) {
                 case "ADD":
                     inventory.adjustQuantity(event.getQuantityChange());
+                    transactionType = Transaction.TransactionType.ADJUSTMENT;
                     break;
                 case "SUBTRACT":
                     inventory.adjustQuantity(-Math.abs(event.getQuantityChange()));
+                    transactionType = Transaction.TransactionType.ADJUSTMENT;
                     break;
                 case "SET":
                     inventory.setQuantity(event.getNewQuantity());
+                    transactionType = Transaction.TransactionType.ADJUSTMENT;
+                    break;
+                case "STOCK_IN":
+                    inventory.adjustQuantity(Math.abs(event.getQuantityChange()));
+                    transactionType = Transaction.TransactionType.STOCK_IN;
+                    break;
+                case "STOCK_OUT":
+                    inventory.adjustQuantity(-Math.abs(event.getQuantityChange()));
+                    transactionType = Transaction.TransactionType.STOCK_OUT;
+                    break;
+                case "RESERVE":
+                    inventory.adjustQuantity(-Math.abs(event.getQuantityChange()));
+                    transactionType = Transaction.TransactionType.RESERVATION;
+                    break;
+                case "RELEASE":
+                    inventory.adjustQuantity(Math.abs(event.getQuantityChange()));
+                    transactionType = Transaction.TransactionType.RELEASE;
                     break;
                 default:
                     throw new RuntimeException("Unknown operation: " + event.getOperation());
@@ -82,11 +103,6 @@ public class InventoryUpdateConsumer {
 
             // Save inventory
             inventory = inventoryRepository.save(inventory);
-            
-            // Create transaction record
-            Transaction.TransactionType transactionType = event.getQuantityChange() > 0 
-                ? Transaction.TransactionType.STOCK_IN 
-                : Transaction.TransactionType.STOCK_OUT;
                 
             Transaction transaction = new Transaction(
                 inventory.getStore(),
