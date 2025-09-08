@@ -33,7 +33,9 @@ public class StoreService {
                 .collect(Collectors.toList());
     }
 
+    @Cacheable(value = "stores", key = "'id:' + #id")
     public Optional<StoreDTO> getStoreById(Long id) {
+        System.out.println("🏪 Cache MISS: Loading store " + id + " from database");
         return storeRepository.findById(id)
                 .map(this::convertToDTO);
     }
