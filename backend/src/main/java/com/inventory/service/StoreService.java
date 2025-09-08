@@ -25,7 +25,9 @@ public class StoreService {
     @Autowired
     private InventoryRepository inventoryRepository;
 
+    @Cacheable(value = "stores", key = "'all'")
     public List<StoreDTO> getAllStores() {
+        System.out.println("🏪 Cache MISS: Loading all stores from database");
         return storeRepository.findAll().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
