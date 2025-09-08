@@ -65,7 +65,7 @@ class InventoryIntegrationTest {
         testProduct.setSku("INT-TEST-001");
         testProduct.setCategory("Test Category");
         testProduct.setDescription("Test Description");
-        testProduct.setPrice(10.99);
+        testProduct.setPrice(new BigDecimal("10.99"));
         testProduct = productRepository.save(testProduct);
     }
 
