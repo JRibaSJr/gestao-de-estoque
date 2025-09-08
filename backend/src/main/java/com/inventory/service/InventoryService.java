@@ -185,6 +185,70 @@ public class InventoryService {
         }
     }
 
+    public String stockIn(Long storeId, Long productId, Integer quantity, String referenceId, String notes) {
+        try {
+            // Validate inputs
+            if (quantity <= 0) {
+                throw new RuntimeException("Quantity must be positive for stock in");
+            }
+            if (!storeRepository.existsById(storeId)) {
+                throw new RuntimeException("Store not found: " + storeId);
+            }
+            if (!productRepository.existsById(productId)) {
+                throw new RuntimeException("Product not found: " + productId);
+            }
+
+            // Create stock in event
+            InventoryUpdateEvent event = new InventoryUpdateEvent(storeId, productId, quantity, "STOCK_IN");
+            event.setNotes(notes != null ? notes : "Stock entry - product received");
+            event.setReferenceId(referenceId);
+            event.setCorrelationId(UUID.randomUUID().toString());
+
+            eventPublisher.publishInventoryUpdate(event);
+            
+            return "Stock in event published: " + event.getEventId() + " - Added " + quantity + " units";
+            
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to process stock in", e);
+        }
+    }
+
+    public String stockOut(Long storeId, Long productId, Integer quantity, String referenceId, String notes) {
+        try {
+            // Validate inputs
+            if (quantity <= 0) {
+                throw new RuntimeException("Quantity must be positive for stock out");
+            }
+            if (!storeRepository.existsById(storeId)) {
+                throw new RuntimeException("Store not found: " + storeId);
+            }
+            if (!productRepository.existsById(productId)) {
+                throw new RuntimeException("Product not found: " + productId);
+            }
+
+            // Check if sufficient stock exists
+            Optional<Inventory> existingInventory = inventoryRepository.findByStoreIdAndProductId(storeId, productId);
+            if (existingInventory.isEmpty() || existingInventory.get().getQuantity() < quantity) {
+                throw new RuntimeException("Insufficient stock. Available: " + 
+                    (existingInventory.isPresent() ? existingInventory.get().getQuantity() : 0) + 
+                    ", Requested: " + quantity);
+            }
+
+            // Create stock out event
+            InventoryUpdateEvent event = new InventoryUpdateEvent(storeId, productId, -quantity, "STOCK_OUT");
+            event.setNotes(notes != null ? notes : "Stock exit - product sold/dispatched");
+            event.setReferenceId(referenceId);
+            event.setCorrelationId(UUID.randomUUID().toString());
+
+            eventPublisher.publishInventoryUpdate(event);
+            
+            return "Stock out event published: " + event.getEventId() + " - Removed " + quantity + " units";
+            
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to process stock out", e);
+        }
+    }
+
     // Synchronous methods for direct database access (used by consumers)
     @Transactional
     public InventoryDTO updateInventoryDirect(InventoryUpdateRequest request) {
