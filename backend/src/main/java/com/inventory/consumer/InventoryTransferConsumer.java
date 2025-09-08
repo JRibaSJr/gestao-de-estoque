@@ -42,8 +42,7 @@ public class InventoryTransferConsumer {
                     throw new RuntimeException("Unknown transfer type: " + event.getTransferType());
             }
 
-            // ACK the message
-            channel.basicAck(deliveryTag, false);
+            if (ack != null) ack.acknowledge();
             
             System.out.println("✅ Successfully processed transfer event: " + event.getEventId());
 
