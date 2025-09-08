@@ -50,6 +50,9 @@ public class InventoryService {
     
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
+    
+    @Autowired
+    private NotificationService notificationService;
 
     // @Cacheable(value = "inventory", key = "'all'")  // Temporarily disabled
     public List<InventoryDTO> getAllInventory() {
