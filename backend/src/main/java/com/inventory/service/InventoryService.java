@@ -84,6 +84,7 @@ public class InventoryService {
 
     @CircuitBreaker(name = "inventory-service", fallbackMethod = "updateInventoryFallback")
     @Retry(name = "inventory-service")
+    @CacheEvict(value = {"inventory", "low-stock", "metrics"}, allEntries = true)
     public String updateInventory(InventoryUpdateRequest request) {
         try {
             // Validate store and product exist
