@@ -318,7 +318,7 @@ public class InventoryService {
     }
 
     // Synchronous methods for direct database access (used by consumers)
-    @Transactional
+    @Transactional(timeout = 10) // Short timeout to prevent long locks
     public InventoryDTO updateInventoryDirect(InventoryUpdateRequest request) {
         // Find or create inventory record with pessimistic locking
         Inventory inventory = inventoryRepository
