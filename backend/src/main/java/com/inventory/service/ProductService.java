@@ -24,7 +24,9 @@ public class ProductService {
     @Autowired
     private InventoryRepository inventoryRepository;
 
+    @Cacheable(value = "products", key = "'all'")
     public List<ProductDTO> getAllProducts() {
+        System.out.println("🛍️ Cache MISS: Loading all products from database");
         return productRepository.findAll().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
