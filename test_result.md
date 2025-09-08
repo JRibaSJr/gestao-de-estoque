@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Build a Distributed Inventory Management System with strong consistency, Spring Boot backend, React frontend, SQLite database, event-driven architecture with RabbitMQ, and API Gateway for centralized routing."
+user_problem_statement: "Build a Distributed Inventory Management System with strong consistency, Spring Boot backend, React frontend, H2 in-memory database for dev, event-driven architecture with Kafka (Redpanda local), and API Gateway for centralized routing."
 
 backend:
   - task: "Spring Boot Backend Setup"
