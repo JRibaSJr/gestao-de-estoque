@@ -24,8 +24,7 @@ public class JacksonConfig {
     @Bean
     @Primary
     public MessageConverter rabbitMessageConverter() {
-        Jackson2JsonMessageConverter converter = new Jackson2JsonMessageConverter();
-        converter.setObjectMapper(objectMapper());
+        Jackson2JsonMessageConverter converter = new Jackson2JsonMessageConverter(objectMapper());
         return converter;
     }
 }
