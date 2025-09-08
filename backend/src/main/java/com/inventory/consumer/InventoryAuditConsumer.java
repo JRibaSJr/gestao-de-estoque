@@ -1,6 +1,6 @@
 package com.inventory.consumer;
 
-import com.inventory.config.RabbitMQConfig;
+// RabbitMQConfig removed after Kafka migration
 import com.inventory.event.InventoryAuditEvent;
 import com.inventory.model.SyncEvent;
 import com.inventory.repository.SyncEventRepository;
