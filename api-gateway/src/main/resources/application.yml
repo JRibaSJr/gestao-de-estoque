@@ -1,0 +1,98 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+    
+  cloud:
+    gateway:
+      default-filters:
+        - AddRequestHeader=X-Gateway, api-gateway
+        - AddResponseHeader=X-Gateway, api-gateway
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOriginPatterns: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+            maxAge: 3600
+      httpclient:
+        connect-timeout: 10000
+        response-timeout: 30s
+        
+  # Redis configuration for rate limiting
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 2000ms
+      
+  # Security configuration
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/auth
+
+# Circuit breaker configuration
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+    instances:
+      inventory-service:
+        baseConfig: default
+      store-service:
+        baseConfig: default
+      product-service:
+        baseConfig: default
+      transaction-service:
+        baseConfig: default
+      sync-service:
+        baseConfig: default
+        
+  # Rate limiter configuration
+  ratelimiter:
+    configs:
+      default:
+        limitForPeriod: 100
+        limitRefreshPeriod: 1s
+        timeoutDuration: 0s
+    instances:
+      inventory-service:
+        baseConfig: default
+      store-service:
+        baseConfig: default
+        
+# Actuator configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,gateway
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# Logging
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.security: DEBUG
+    com.inventory.gateway: DEBUG
