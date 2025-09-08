@@ -23,9 +23,6 @@ public abstract class InventoryEvent {
     private String eventId;
     private String eventType;
     
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime timestamp;
     
     private Long storeId;
