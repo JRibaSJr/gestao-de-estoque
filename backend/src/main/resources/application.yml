@@ -20,6 +20,23 @@ spring:
         id:
           new_generator_mappings: false
     generate-ddl: true
+    
+  # RabbitMQ Configuration
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    listener:
+      simple:
+        retry:
+          enabled: true
+          initial-interval: 2s
+          max-attempts: 3
+          max-interval: 10s
+          multiplier: 2
+        default-requeue-rejected: false
+        acknowledge-mode: manual
         
   web:
     cors:
