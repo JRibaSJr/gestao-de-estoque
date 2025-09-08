@@ -1,4 +1,4 @@
-package com.inventory.controller;
+// package com.inventory.controller; // Deprecated after Kafka migration
 
 import com.inventory.publisher.InventoryEventPublisher;
 import org.springframework.beans.factory.annotation.Autowired;
